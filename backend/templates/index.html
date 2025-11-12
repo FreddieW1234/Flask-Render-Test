@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bite Promo Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 400;
+            margin: 0;
+        }
+
+        /* Stats Cards in Header */
+        .header-stats {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .header-stat {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 15px 20px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            min-width: 120px;
+        }
+
+        .header-stat:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-stat i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-stat h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .header-stat p {
+            color: #666;
+            font-weight: 400;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-card h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-weight: 400;
+        }
+
+        /* Tools Grid */
+        .tools-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .tools-section h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #333;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            align-items: stretch;
+        }
+
+        /* Folder (group) card */
+        .folder-card {
+            padding: 0;
+        }
+        .folder-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 25px;
+            cursor: pointer;
+        }
+        .folder-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+        .toggle-icon {
+            transition: transform 0.2s ease;
+        }
+        .nested-grid {
+            display: none;
+            border-top: 1px solid #eee;
+            padding: 20px 20px 25px 20px;
+            display: none;
+        }
+        .nested-grid.open {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .tool-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .tool-card h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tool-card h3 i {
+            font-size: 1.2rem;
+            color: #667eea;
+        }
+
+        .tool-card p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .tool-card .tool-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: auto;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #e9ecef;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header-stats {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .header-stat {
+                min-width: 100px;
+                padding: 12px 15px;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1><i class="fas fa-store"></i> Bite Promo Dashboard</h1>
+            </div>
+            <div class="header-stats">
+                <div class="header-stat">
+                    <i class="fas fa-tools"></i>
+                    <h3 id="tools-count">-</h3>
+                    <p>Available Tools</p>
+                </div>
+                <div class="header-stat">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Active</h3>
+                    <p>Dashboard Status</p>
+                </div>
+                <div class="header-stat">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Ready</h3>
+                    <p>System Status</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tools Section -->
+        <div class="tools-section">
+            <h2>Available Tools</h2>
+            <div class="tools-grid" id="tools-grid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading tools...</p>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        // Tool descriptions and icons
+        const toolInfo = {
+            'Price_Bandit': {
+                name: 'Price Bandit',
+                description: 'Sync prices, weights, and SKUs to variants for price bands (automatically done when in Price Manager and Field Finder)',
+                icon: 'fas fa-dollar-sign',
+                color: '#28a745'
+            },
+            'Field_Finder': {
+                name: 'Field Finder',
+                description: 'Edit product metafields (excl. price)',
+                icon: 'fas fa-search',
+                color: '#17a2b8'
+            },
+            'Price_Manager': {
+                name: 'Price Manager',
+                description: 'Control prices for all products on Shopify',
+                icon: 'fas fa-chart-line',
+                color: '#6f42c1'
+            },
+            'Artwork_Updater': {
+                name: 'Artwork Updater',
+                description: 'Upload and manage Artwork Guideline PDF versions',
+                icon: 'fas fa-palette',
+                color: '#e91e63'
+            },
+            'Product_Creator': {
+                name: 'Product Editor/Creator',
+                description: 'Create a new product from scratch and publish to the Bite website',
+                icon: 'fas fa-box-open',
+                color: '#ff9800'
+            },
+            'Templates_Uploader': {
+                name: 'Templates Uploader',
+                description: 'Zip multiple files and save to each product',
+                icon: 'fas fa-file-archive',
+                color: '#f4c542'
+            },
+            'Category_Editor': {
+                name: 'Category Editor',
+                description: 'Edit categories and subcategories for product metafields',
+                icon: 'fas fa-tags',
+                color: '#20c997'
+            }
+        };
+
+        // Static tools that don't require Python scripts
+        const staticTools = ['Product_Creator', 'Category_Editor'];
+
+        // Load tools from the API
+        async function loadTools() {
+            try {
+                console.log('🔍 Loading tools...');
+                const response = await fetch('/api/tools');
+                const dynamicTools = await response.json();
+                console.log('📡 API returned:', dynamicTools);
+                
+                // Combine dynamic Python tools with static HTML tools
+                const allTools = [...dynamicTools, ...staticTools];
+                console.log('🔧 Combined tools:', allTools);
+                
+                // Update tools count
+                document.getElementById('tools-count').textContent = allTools.length;
+                
+                // Generate tool cards (group some tools into a folder)
+                const toolsGrid = document.getElementById('tools-grid');
+                toolsGrid.innerHTML = '';
+                console.log('🧹 Cleared tools grid');
+
+                const groupedToolNames = ['Artwork_Updater', 'Field_Finder', 'Price_Bandit', 'Price_Manager', 'Templates_Uploader'];
+                const groupedTools = allTools.filter(t => groupedToolNames.includes(t));
+                const otherTools = allTools.filter(t => !groupedToolNames.includes(t));
+
+                if (groupedTools.length > 0) {
+                    const folderCard = createFolderCard('Individual Shop Tools', groupedTools);
+                    toolsGrid.appendChild(folderCard);
+                }
+
+                otherTools.forEach(tool => {
+                    console.log(`🎯 Creating tool card for: ${tool}`);
+                    const toolData = toolInfo[tool] || {
+                        name: tool.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                        description: `Run the ${tool.replace(/_/g, ' ')} script`,
+                        icon: 'fas fa-cog',
+                        color: '#6c757d'
+                    };
+                    const toolCard = createToolCard(tool, toolData);
+                    toolsGrid.appendChild(toolCard);
+                    console.log(`✅ Added tool card for: ${tool}`);
+                });
+                
+                console.log('🎉 Tools loading complete');
+            } catch (error) {
+                console.error('❌ Error loading tools:', error);
+                document.getElementById('tools-grid').innerHTML = `
+                    <div style="text-align: center; color: #dc3545; padding: 20px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>Error loading tools. Please refresh the page.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Create tool card element
+        function createToolCard(toolName, toolData) {
+            const card = document.createElement('div');
+            card.className = 'tool-card';
+            card.innerHTML = `
+                <h3>
+                    <i class="${toolData.icon}" style="color: ${toolData.color}"></i>
+                    ${toolData.name}
+                </h3>
+                <p>${toolData.description}</p>
+                <div class="tool-actions">
+                    <button class="btn btn-primary" onclick="openTool('${toolName}')">
+                        <i class="fas fa-external-link-alt"></i> Open Tool
+                    </button>
+                </div>
+            `;
+            return card;
+        }
+
+        // Create a folder card with nested tools
+        function createFolderCard(title, tools) {
+            const card = document.createElement('div');
+            card.className = 'tool-card folder-card';
+
+            const header = document.createElement('div');
+            header.className = 'folder-header';
+            header.innerHTML = `
+                <div class="folder-title">
+                    <i class="fas fa-folder" style="color: #f4c542"></i>
+                    ${title}
+                </div>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            `;
+
+            const nested = document.createElement('div');
+            nested.className = 'nested-grid';
+
+            // Populate nested tools
+            tools.forEach(tool => {
+                const data = toolInfo[tool] || {
+                    name: tool.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                    description: `Run the ${tool.replace(/_/g, ' ')} script`,
+                    icon: 'fas fa-cog',
+                    color: '#6c757d'
+                };
+                nested.appendChild(createToolCard(tool, data));
+            });
+
+            // Toggle behavior
+            header.addEventListener('click', () => {
+                const icon = header.querySelector('.toggle-icon');
+                const isOpen = nested.classList.toggle('open');
+                icon.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+            });
+
+            card.appendChild(header);
+            card.appendChild(nested);
+            return card;
+        }
+
+        // Open a tool's interface
+        function openTool(toolName) {
+            window.location.href = `/app/${toolName}`;
+        }
+
+
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTools();
+            
+            // Add some interactive effects
+            const cards = document.querySelectorAll('.tool-card, .header-stat');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    if (card.classList.contains('tool-card')) {
+                        this.style.transform = 'translateY(-8px)';
+                    }
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    if (card.classList.contains('tool-card')) {
+                        this.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+        });
+
+        // Refresh tools every 30 seconds
+        setInterval(loadTools, 30000);
+    </script>
+</body>
+</html>

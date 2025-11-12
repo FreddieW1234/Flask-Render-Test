@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Finder - Shopify Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 10px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 18px 25px;
+            margin-bottom: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .app-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .app-tabs-row {
+            display: contents;
+        }
+
+        .app-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .app-tab:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .app-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .app-tab i {
+            font-size: 0.9rem;
+        }
+
+        .app-tab span {
+            white-space: nowrap;
+        }
+
+        .dashboard-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .dashboard-tab:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .dashboard-tab i {
+            font-size: 1rem;
+        }
+        
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+
+
+
+        
+        
+
+        
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            max-width: 300px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification-success {
+            background: #28a745;
+        }
+        
+        .notification-info {
+            background: #17a2b8;
+        }
+        
+        .notification-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .notification-error {
+            background: #dc3545;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 400;
+            margin: 0;
+        }
+
+        .tool-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .tool-section h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .product-input {
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 300px;
+            transition: border-color 0.3s ease;
+        }
+
+        .product-input:focus {
+            outline: none;
+            border-color: #17a2b8;
+            box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
+        }
+
+        .autocomplete-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .autocomplete-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+
+        .autocomplete-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item .product-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .autocomplete-item .product-id {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .product-info {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #e9ecef;
+            display: none;
+        }
+
+        .product-info h3 {
+            color: #17a2b8;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .metafields-section {
+            margin-bottom: 15px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .section-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .save-all-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .save-all-btn:hover {
+            background: #218838;
+        }
+
+        .save-all-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .metafields-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .metafield-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .metafield-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .metafield-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .metafield-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .metafield-type {
+            font-size: 0.7rem;
+            color: #666;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .metafield-key {
+            font-size: 0.7rem;
+            color: #666;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .list-dropdown {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+        
+        .list-dropdown:hover {
+            border-color: #667eea;
+        }
+        
+        .list-dropdown:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+        
+        .metafield-new-option {
+            margin-top: 5px;
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            background: white;
+            color: #333;
+            transition: border-color 0.2s ease;
+        }
+        
+        .metafield-new-option:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .metafield-value {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .metafield-value:focus {
+            outline: none;
+            border-color: #17a2b8;
+            box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.1);
+        }
+        
+        .metafield-value.compact {
+            width: 70% !important;
+            min-height: 40px !important;
+            max-width: 70% !important;
+        }
+        
+        .metafield-input-row {
+            display: flex !important;
+            align-items: flex-start !important;
+            gap: 10px !important;
+            width: 100% !important;
+        }
+
+        .emoji-buttons {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            margin-top: 0;
+        }
+
+        .emoji-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            min-height: 32px;
+        }
+
+        .emoji-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .emoji-btn.tick {
+            color: #28a745;
+        }
+
+        .emoji-btn.cross {
+            color: #dc3545;
+        }
+
+        .metafield-item.new-metafield {
+            background: #e9ecef; /* Light gray background for new/blank fields */
+            border: 1px dashed #ced4da; /* Dashed border for new fields */
+            box-shadow: none; /* No shadow for new fields */
+        }
+
+        .metafield-item.new-metafield .metafield-header {
+            color: #666; /* Darker text for new fields */
+        }
+
+        .metafield-item.new-metafield .metafield-footer {
+            border-top: 1px dashed #ced4da; /* Dashed border for new fields */
+        }
+
+
+
+
+
+
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tool-section {
+                padding: 20px;
+            }
+            
+            .product-input {
+                width: 100%;
+            }
+            
+            .metafields-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>
+                    <i class="fas fa-search" style="color: #17a2b8;"></i>
+                    Field Finder
+                </h1>
+            </div>
+            <div class="header-right">
+                <div class="app-tabs">
+                    <a href="/app/Artwork_Updater" class="app-tab">
+                        <i class="fas fa-palette"></i>
+                        <span>Artwork Updater</span>
+                    </a>
+                    <a href="/app/Field_Finder" class="app-tab active">
+                        <i class="fas fa-search"></i>
+                        <span>Field Finder</span>
+                    </a>
+                    <a href="/app/price_bandit" class="app-tab">
+                        <i class="fas fa-robot"></i>
+                        <span>Price Bandit</span>
+                    </a>
+                    <a href="/app/Price_Manager" class="app-tab">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Price Manager</span>
+                    </a>
+                    <a href="/app/Product_Creator" class="app-tab">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Product Editor/Creator</span>
+                    </a>
+                    <a href="/app/Templates_Uploader" class="app-tab">
+                        <i class="fas fa-file-archive"></i>
+                        <span>Templates Uploader</span>
+                    </a>
+                </div>
+                <a href="/" class="dashboard-tab">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="tool-section">
+            <div class="search-container">
+                <div class="autocomplete-container">
+                    <input type="text" id="product-input" class="product-input" placeholder="Enter product name or SKU">
+                    <div id="autocomplete-dropdown" class="autocomplete-dropdown" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div id="product-info" class="product-info">
+                <h3 id="product-title">Product Details</h3>
+                
+                <div class="metafields-section">
+                    <div class="section-header">
+                        <div class="section-title">Metafields</div>
+                        <div class="section-controls">
+                            <button id="save-all-btn" class="save-all-btn" onclick="saveAllMetafields()">
+                                <i class="fas fa-save"></i> Save All Changes
+                            </button>
+                        </div>
+                    </div>
+                    
+
+                    
+                    <div class="metafields-grid" id="metafields-container"></div>
+                </div>
+            </div>
+            
+
+        </div>
+    </div>
+
+    <script>
+        const productInput = document.getElementById('product-input');
+        const autocompleteDropdown = document.getElementById('autocomplete-dropdown');
+        const productInfo = document.getElementById('product-info');
+        const productTitle = document.getElementById('product-title');
+        const metafieldsContainer = document.getElementById('metafields-container');
+        const saveAllBtn = document.getElementById('save-all-btn');
+        
+        let allProducts = [];
+        let autocompleteTimeout;
+        let currentProduct = null;
+
+        // Fetch all products for autocomplete
+        async function fetchProducts() {
+            try {
+                console.log('Fetching products from /api/products...');
+                const response = await fetch('/api/products');
+                console.log('Products API response status:', response.status);
+                
+                if (response.ok) {
+                    allProducts = await response.json();
+                    console.log('Products loaded:', allProducts.length, 'products');
+                    console.log('Sample product:', allProducts[0]);
+                    
+                    if (allProducts.length === 0) {
+                        alert('Warning: No products were loaded. This might indicate an issue with the Shopify API connection.');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.log('Error loading products:', response.statusText);
+                    console.log('Error response:', errorText);
+                    alert(`Error loading products: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.log('Could not fetch products for autocomplete:', error.message);
+                console.error('Full error:', error);
+                alert(`Error loading products: ${error.message}`);
+            }
+        }
+
+        // Initialize products
+        fetchProducts();
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+        // MOVE PANES FUNCTIONALITY - CLICK TO MOVE VERSION
+        function openMovePanesModal() {
+            // Close settings dropdown
+            document.getElementById('settings-menu').classList.remove('show');
+            
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Reorder Metafields</h3>
+                        <button class="modal-close" onclick="closeMovePanesModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Click the up/down arrows to reorder metafields. The new order will be saved and applied to all products.</p>
+                        <div id="reorder-container" class="reorder-container"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeMovePanesModal()">Cancel</button>
+                        <button class="btn btn-primary" onclick="saveMetafieldOrder()">Save Order</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Populate and initialize
+            populateReorderContainer();
+        }
+        
+        function closeMovePanesModal() {
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function populateReorderContainer() {
+            const container = document.getElementById('reorder-container');
+            const metafieldItems = document.querySelectorAll('.metafield-item');
+            
+            container.innerHTML = '';
+            console.log('Populating reorder container with', metafieldItems.length, 'items');
+            
+            metafieldItems.forEach((item, index) => {
+                const input = item.querySelector('.metafield-value');
+                const key = input.dataset.key;
+                const name = item.querySelector('.metafield-name').textContent;
+                
+                const reorderItem = document.createElement('div');
+                reorderItem.className = 'reorder-item';
+                reorderItem.dataset.key = key;
+                reorderItem.dataset.index = index;
+                reorderItem.innerHTML = `
+                    <div class="drag-handle">
+                        <i class="fas fa-grip-vertical"></i>
+                    </div>
+                    <span class="reorder-name">${name}</span>
+                    <div class="reorder-controls">
+                        <button class="move-up-btn" onclick="moveItemUp(${index})" ${index === 0 ? 'disabled' : ''}>
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                        <button class="move-down-btn" onclick="moveItemDown(${index})" ${index === metafieldItems.length - 1 ? 'disabled' : ''}>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Store the current index for the onclick handlers
+                reorderItem.dataset.currentIndex = index;
+                container.appendChild(reorderItem);
+            });
+            
+            // Initialize drag and drop functionality
+            initializeDragAndDrop();
+        }
+        
+        function moveItemUp(index) {
+            const container = document.getElementById('reorder-container');
+            const items = Array.from(container.querySelectorAll('.reorder-item'));
+            
+            if (index > 0) {
+                const currentItem = items[index];
+                const previousItem = items[index - 1];
+                
+                // Swap positions
+                container.insertBefore(currentItem, previousItem);
+                
+                // Update button states and re-index
+                updateMoveButtons();
+                console.log(`Moved item ${index} up`);
+            }
+        }
+        
+        function moveItemDown(index) {
+            const container = document.getElementById('reorder-container');
+            const items = Array.from(container.querySelectorAll('.reorder-item'));
+            
+            if (index < items.length - 1) {
+                const currentItem = items[index];
+                const nextItem = items[index + 1];
+                
+                // Move current item after next item
+                if (nextItem.nextSibling) {
+                    container.insertBefore(currentItem, nextItem.nextSibling);
+                } else {
+                    container.appendChild(currentItem);
+                }
+                
+                // Update button states and re-index
+                updateMoveButtons();
+                console.log(`Moved item ${index} down`);
+            }
+        }
+        
+        function updateMoveButtons() {
+            const container = document.getElementById('reorder-container');
+            const items = Array.from(container.querySelectorAll('.reorder-item'));
+            
+            items.forEach((item, newIndex) => {
+                const upBtn = item.querySelector('.move-up-btn');
+                const downBtn = item.querySelector('.move-down-btn');
+                
+                // Update onclick handlers with new indices
+                if (upBtn) {
+                    upBtn.disabled = newIndex === 0;
+                    upBtn.onclick = () => moveItemUp(newIndex);
+                }
+                if (downBtn) {
+                    downBtn.disabled = newIndex === items.length - 1;
+                    downBtn.onclick = () => moveItemDown(newIndex);
+                }
+            });
+            
+            console.log('Updated move buttons for', items.length, 'items');
+        }
+        
+        function saveMetafieldOrder() {
+            const container = document.getElementById('reorder-container');
+            const items = container.querySelectorAll('.reorder-item');
+            const newOrder = Array.from(items).map(item => item.dataset.key);
+            
+            // Save to localStorage permanently
+            metafieldOrder = newOrder;
+            localStorage.setItem('metafieldOrder', JSON.stringify(newOrder));
+            
+            // Apply the new order to the display
+            applyMetafieldOrder(newOrder);
+            
+            closeMovePanesModal();
+            
+            // Show success message
+            showNotification('Metafield order saved', 'success');
+        }
+        
+        // DRAG AND DROP FUNCTIONALITY
+        function initializeDragAndDrop() {
+            const container = document.getElementById('reorder-container');
+            const items = container.querySelectorAll('.reorder-item');
+            
+            items.forEach(item => {
+                item.draggable = true;
+                
+                // Drag start
+                item.addEventListener('dragstart', (e) => {
+                    item.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/html', item.outerHTML);
+                    e.dataTransfer.setData('text/plain', item.dataset.key);
+                });
+                
+                // Drag end
+                item.addEventListener('dragend', (e) => {
+                    item.classList.remove('dragging');
+                    // Remove all drag-over classes
+                    items.forEach(otherItem => otherItem.classList.remove('drag-over'));
+                });
+                
+                // Drag over
+                item.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    
+                    const draggingItem = container.querySelector('.dragging');
+                    if (draggingItem && draggingItem !== item) {
+                        const rect = item.getBoundingClientRect();
+                        const midpoint = rect.top + rect.height / 2;
+                        
+                        if (e.clientY < midpoint) {
+                            item.classList.add('drag-over');
+                        } else {
+                            item.classList.remove('drag-over');
+                        }
+                    }
+                });
+                
+                // Drag enter
+                item.addEventListener('dragenter', (e) => {
+                    e.preventDefault();
+                    const draggingItem = container.querySelector('.dragging');
+                    if (draggingItem && draggingItem !== item) {
+                        item.classList.add('drag-over');
+                    }
+                });
+                
+                // Drag leave
+                item.addEventListener('dragleave', (e) => {
+                    item.classList.remove('drag-over');
+                });
+                
+                // Drop
+                item.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    item.classList.remove('drag-over');
+                    
+                    const draggingItem = container.querySelector('.dragging');
+                    if (draggingItem && draggingItem !== item) {
+                        const rect = item.getBoundingClientRect();
+                        const midpoint = rect.top + rect.height / 2;
+                        
+                        if (e.clientY < midpoint) {
+                            // Insert before this item
+                            container.insertBefore(draggingItem, item);
+                        } else {
+                            // Insert after this item
+                            container.insertBefore(draggingItem, item.nextSibling);
+                        }
+                        
+                        // Update button states
+                        updateMoveButtons();
+                        console.log('Item moved via drag and drop');
+                    }
+                });
+            });
+        }
+    
+    // Notification function
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        // Show notification
+        setTimeout(() => notification.classList.add('show'), 100);
+        
+        // Hide and remove after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+        
+        function applyMetafieldOrder(order) {
+            const container = document.getElementById('metafields-container');
+            const metafieldItems = Array.from(container.querySelectorAll('.metafield-item'));
+            
+            // Sort metafield items according to the new order
+            const sortedItems = order.map(key => {
+                return metafieldItems.find(item => {
+                    const input = item.querySelector('.metafield-value');
+                    return input.dataset.key === key;
+                });
+            }).filter(Boolean);
+            
+            // Add any items not in the order at the end
+            metafieldItems.forEach(item => {
+                const input = item.querySelector('.metafield-value');
+                if (!order.includes(input.dataset.key)) {
+                    sortedItems.push(item);
+                }
+            });
+            
+            // Clear and re-append in new order
+            container.innerHTML = '';
+            sortedItems.forEach(item => container.appendChild(item));
+        }
+        
+        // Metafield order functionality
+        let metafieldOrder = [];
+        
+        // Load saved metafield order from localStorage when page loads
+        function loadSavedMetafieldOrder() {
+            try {
+                const savedOrder = localStorage.getItem('metafieldOrder');
+                if (savedOrder) {
+                    metafieldOrder = JSON.parse(savedOrder);
+                    console.log('Loaded saved metafield order:', metafieldOrder);
+                } else {
+                    console.log('No saved metafield order found');
+                }
+            } catch (error) {
+                console.error('Error loading saved metafield order:', error);
+                metafieldOrder = [];
+            }
+        }
+        
+        // Load the saved order when the page loads
+        loadSavedMetafieldOrder();
+        
+        // Default metafield order (hardcoded fallback)
+        const DEFAULT_METAFIELD_ORDER = [
+            "sku",
+            "custom_category", 
+            "subcategory",
+            "description",
+            "moq",
+            "origination",
+            "shelf_life",
+            "unit_weight",
+            "case_quantity",
+            "case_weight",
+            "print_info",
+            "recycle_info",
+            "ingredients",
+            "nutritional_info",
+            "leadtime1",
+            "leadtime2",
+            "whats_inside",
+            "vegan",
+            "vegetarian",
+            "halal",
+            "coeliac",
+            "peanuts",
+            "tree_nuts",
+            "sesame",
+            "milk",
+            "egg",
+            "cereals",
+            "soya",
+            "product_size",
+            "commodity_code",
+            "packing_info"
+        ];
+
+        // Apply saved metafield order to metafields array
+        function applySavedOrder(metafields) {
+            // Use saved order if available, otherwise use default order
+            const orderToUse = (metafieldOrder && metafieldOrder.length > 0) ? metafieldOrder : DEFAULT_METAFIELD_ORDER;
+            
+            if (!orderToUse || orderToUse.length === 0) {
+                return metafields;
+            }
+            
+            const orderedMetafields = [];
+            const remainingMetafields = [...metafields];
+            
+            // First, add metafields in the specified order
+            orderToUse.forEach(key => {
+                const metafield = remainingMetafields.find(m => m.key === key);
+                if (metafield) {
+                    orderedMetafields.push(metafield);
+                    // Remove from remaining to avoid duplicates
+                    const index = remainingMetafields.indexOf(metafield);
+                    if (index > -1) {
+                        remainingMetafields.splice(index, 1);
+                    }
+                }
+            });
+            
+            // Add any remaining metafields that weren't in the order
+            orderedMetafields.push(...remainingMetafields);
+            
+            console.log('Applied order:', orderedMetafields.map(m => m.key));
+            return orderedMetafields;
+        }
+        
+        // Search for a specific product
+        async function searchProduct(query) {
+            try {
+                console.log('Searching for product:', query);
+                console.log('Available products:', allProducts);
+                
+                // Find the product from our autocomplete data
+                const product = allProducts.find(p => 
+                    p.title.toLowerCase().includes(query.toLowerCase()) ||
+                    p.id.toString().includes(query) ||
+                    (p.variants && p.variants[0] && p.variants[0].sku && 
+                     p.variants[0].sku.toLowerCase().includes(query.toLowerCase()))
+                );
+
+                if (!product) {
+                    console.log(`Product not found: ${query}`);
+                    alert(`Product not found: ${query}`);
+                    return;
+                }
+
+                console.log('Found product:', product);
+                console.log('Fetching details for product ID:', product.id);
+
+                // Show loading state
+                productInfo.style.display = 'block';
+                productTitle.textContent = 'Loading...';
+                metafieldsContainer.innerHTML = '<p>Loading product details...</p>';
+
+                // Fetch detailed product information (using prices endpoint to get all metafields)
+                const response = await fetch(`/api/product/${product.id}/prices`);
+                console.log('API response status:', response.status);
+                
+                if (response.ok) {
+                    const productData = await response.json();
+                    console.log('Product data received:', productData);
+                    displayProductInfo(productData);
+                } else {
+                    const errorText = await response.text();
+                    console.log(`Error fetching product details: ${response.statusText}`);
+                    console.log('Error response:', errorText);
+                    alert(`Error loading product: ${response.statusText}`);
+                    productInfo.style.display = 'none';
+                }
+            } catch (error) {
+                console.log(`Error searching for product: ${error.message}`);
+                console.error('Full error:', error);
+                alert(`Error: ${error.message}`);
+                productInfo.style.display = 'none';
+            }
+        }
+
+        // Display product information
+        function displayProductInfo(product) {
+            currentProduct = product;
+            productTitle.textContent = product.title;
+            
+            // Display metafields
+            displayMetafields(product.metafields || []);
+            
+
+            
+            productInfo.style.display = 'block';
+        }
+
+        // Convert technical metafield keys to human-readable names
+        function getHumanReadableName(key) {
+            const nameMap = {
+                // Dietary restrictions
+                'vegan': 'Suitable for: Vegans',
+                'vegetarian': 'Suitable for: Vegetarians', 
+                'halal': 'Suitable for: Halal',
+                'coeliac': 'Suitable for: Coeliacs',
+                'peanuts': 'Contains: Peanuts',
+                'tree_nuts': 'Contains: Tree Nuts',
+                'sesame': 'Contains: Sesame',
+                'egg': 'Contains: Eggs',
+                'cereals': 'Contains: Cereals',
+                'soya': 'Contains: Soya',
+                'milk': 'Contains: Milk',
+                'egg': 'Contains: Egg',
+                'moq': 'MOQ (Units)',
+                'origination': 'Origination (£)',
+                'shelf_life': 'Shelf Life (Months)',
+                'unit_weight': 'Unit Weight (g)',
+                'case_weight': 'Case Weight (g)',
+                'print_info': 'Print Info',
+                'case_quantity': 'Case Quantity (Units)',
+                'ingredients': 'Ingredients',
+                'nutritional_info': 'Nutritional Info',
+                'whats_inside': 'What\'s Inside',
+                'artworktemplates': 'Artwork Templates',
+                'artworkguidelines': 'Artwork Guidelines',
+                'description': 'Description',
+                'leadtime1': 'Lead Time <5000 (Units)',
+                'leadtime2': 'Lead Time 5000-10000 (Units)',
+                'sku': 'Product Code',
+                'recycle_info': 'Recycle Info',
+                'commodity_code': 'Commodity Code',
+                'product_size': 'Product Size in mm (l*w*h)',
+                'custom_category': 'Category',
+                'subcategory': 'Subcategory',                
+                
+                // Default fallback - capitalize and replace underscores
+                'default': key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+            };
+            
+            // Check if we have a specific mapping
+            if (nameMap[key]) {
+                return nameMap[key];
+            }
+            
+            // Use the default transformation
+            return nameMap.default;
+        }
+        
+        // Display metafields in 3-column grid
+        function displayMetafields(metafields) {
+            console.log('🔍 displayMetafields called with:', metafields);
+            console.log('🔍 Total metafields to display:', metafields.length);
+            
+            metafieldsContainer.innerHTML = '';
+            
+            if (metafields.length === 0) {
+                metafieldsContainer.innerHTML = '<p style="color: #666; font-style: italic; grid-column: 1 / -1;">No metafields found</p>';
+                return;
+            }
+            
+            // Apply the same filtering logic as Product Creator
+            metafields = (metafields || []).filter(m => {
+                const namespace = (m.namespace || '').toLowerCase();
+                const key = (m.key || '').toLowerCase();
+                if (!namespace || !key) return false;
+                if (namespace === 'global') return false;
+                if (key.startsWith('pricejson') && !key.includes('.')) return false;
+                if (namespace === 'shopify' && key.includes('chocolate')) return false;
+                if (namespace === 'custom' && ['artworkguidelines','artworktemplates','packaging if applicable','packaging_if_applicable','product_colours'].includes(key)) return false;
+                return true;
+            });
+            
+            console.log('🔍 After filtering:', metafields.length, 'metafields remain');
+            
+            // Always apply metafield order (uses saved order if available, otherwise default order)
+            console.log('Applying metafield order (saved or default)');
+            metafields = applySavedOrder(metafields);
+
+            for (const metafield of metafields) {
+                console.log(`🔍 Processing metafield ${metafield.key}:`, metafield);
+                console.log(`📊 Raw available_options for ${metafield.key}:`, metafield.available_options);
+                
+                const metafieldDiv = document.createElement('div');
+                metafieldDiv.className = 'metafield-item';
+                
+                // Create a more readable display name by converting technical keys to human-readable names
+                let displayName = getHumanReadableName(metafield.key);
+                
+                // Check if this metafield should have emoji buttons
+                const emojiFields = ['vegan', 'vegetarian', 'halal', 'coeliac', 'peanuts', 'tree_nuts', 'sesame', 'egg', 'cereals', 'soya', 'milk'];
+                const hasEmojiButtons = emojiFields.includes(metafield.key);
+                
+                // Check if this metafield has predefined options (list types OR single_line_text_field with choices)
+                // BUT emoji fields should always use textareas, not dropdowns
+                // AND only show dropdowns if there are actually multiple real options (not just the current value)
+                // Note: Category fields are now displayed but may have special handling
+                const isCategoryField = metafield.key === 'custom_category' || metafield.key === 'subcategory';
+                if (isCategoryField) {
+                    console.log(`🔍 Processing category field: ${metafield.key}`);
+                }
+                
+                const hasOptions = (metafield.key === 'custom_category' || metafield.key === 'subcategory')
+                                  ? true
+                                  : (!hasEmojiButtons && (metafield.available_options && metafield.available_options.length > 1));
+                const currentValue = metafield.value || '';
+                
+                // Debug: Log the metafield details for category and subcategory fields
+                if (metafield.key === 'custom_category' || metafield.key === 'subcategory') {
+                    console.log(`🔍 DEBUG ${metafield.key} metafield:`, {
+                        key: metafield.key,
+                        namespace: metafield.namespace,
+                        hasEmojiButtons: hasEmojiButtons,
+                        available_options: metafield.available_options,
+                        available_options_length: metafield.available_options ? metafield.available_options.length : 'undefined',
+                        hasOptions: hasOptions,
+                        type: metafield.type
+                    });
+                }
+                
+                // For fields with multiple real options (but NOT emoji fields), create a dropdown; otherwise use textarea
+                let inputElement;
+                if (hasOptions) {
+                    // Create dropdown for fields with predefined options
+                    let availableOptions = [];
+                    // Always use backend-provided options for category fields; otherwise default behavior
+                    if (isCategoryField) {
+                        availableOptions = Array.isArray(metafield.available_options) ? metafield.available_options : [];
+                        console.log(`📋 Using categories.py options for ${metafield.key}:`, availableOptions);
+                    } else {
+                        if (metafield.available_options && metafield.available_options.length > 0) {
+                            availableOptions = metafield.available_options;
+                            console.log(`📋 Using Shopify options for ${metafield.key}:`, availableOptions);
+                        } else {
+                            // Fallback to parsing current value if no predefined options
+                            availableOptions = currentValue ? currentValue.split(',').map(v => v.trim()).filter(v => v) : [];
+                            console.log(`📝 Fallback to parsed options for ${metafield.key}:`, availableOptions);
+                        }
+                    }
+                    
+                    // Debug: Log what we're about to create
+                    console.log(`🔧 Creating dropdown for ${metafield.key} with ${availableOptions.length} options:`, availableOptions);
+                    
+                    // Clean up options - remove quotes, brackets, and extra whitespace
+                    availableOptions = availableOptions.map(option => {
+                        if (typeof option === 'string') {
+                            // Remove quotes, brackets, and extra whitespace (but keep apostrophes)
+                            return option.replace(/["\[\]]/g, '').trim();
+                        }
+                        return String(option).replace(/["\[\]]/g, '').trim();
+                    }).filter(option => option && option !== '');
+                    
+                    // Add current value if it's not in the available options
+                    if (currentValue && !availableOptions.includes(currentValue)) {
+                        const cleanCurrentValue = currentValue.replace(/["\[\]]/g, '').trim();
+                        if (cleanCurrentValue && !availableOptions.includes(cleanCurrentValue)) {
+                            availableOptions.unshift(cleanCurrentValue);
+                        }
+                    }
+                    
+                    console.log(`🎯 Final cleaned options for ${metafield.key}:`, availableOptions);
+                    
+                    inputElement = `
+                        <select class="metafield-value list-dropdown" data-id="${metafield.id || 'null'}" data-namespace="${metafield.namespace || 'custom'}" data-key="${metafield.key || ''}" data-type="${metafield.type || 'single_line_text_field'}">
+                            <option value="">-- Select Option --</option>
+                            ${availableOptions.map(option => `<option value="${option}" ${currentValue === option ? 'selected' : ''}>${option}</option>`).join('')}
+                        </select>
+                    `;
+                } else {
+                    // Regular textarea for non-list types
+                    inputElement = `<textarea class="metafield-value ${hasEmojiButtons ? 'compact' : ''}" data-id="${metafield.id || 'null'}" data-namespace="${metafield.namespace || 'custom'}" data-key="${metafield.key || ''}" data-type="${metafield.type || 'single_line_text_field'}">${currentValue}</textarea>`;
+                }
+                
+                metafieldDiv.innerHTML = `
+                    <div class="metafield-header">
+                        <span class="metafield-name" data-key="${metafield.key || ''}">${displayName}</span>
+                    </div>
+                    <div class="metafield-input-row">
+                        ${inputElement}
+                        ${hasEmojiButtons ? `
+                            <div class="emoji-buttons">
+                                <button class="emoji-btn tick" onclick="insertEmoji(this, '✔️')">
+                                    <span>✔️</span>
+                                </button>
+                                <button class="emoji-btn cross" onclick="insertEmoji(this, '❌')">
+                                    <span>❌</span>
+                                </button>
+                                </div>
+                        ` : ''}
+                    </div>
+                    <div class="metafield-footer">
+                        <span class="metafield-type">${metafield.type}</span>
+                        <span class="metafield-key">${metafield.namespace}:${metafield.key}</span>
+                    </div>
+                `;
+                metafieldsContainer.appendChild(metafieldDiv);
+            }
+            
+            // After all metafields are displayed, set up auto-calculation for case weight
+            setupCaseWeightCalculation();
+        }
+        
+        // Auto-calculation function for case weight
+        function setupCaseWeightCalculation() {
+            const caseWeightField = document.querySelector('textarea[data-key="case_weight"]');
+            const caseQuantityField = document.querySelector('textarea[data-key="case_quantity"]');
+            const unitWeightField = document.querySelector('textarea[data-key="unit_weight"]');
+            
+            if (caseWeightField && caseQuantityField && unitWeightField) {
+                console.log('🔧 Setting up case weight auto-calculation');
+                
+                // Function to calculate case weight
+                function calculateCaseWeight() {
+                    const caseQuantity = parseFloat(caseQuantityField.value) || 0;
+                    const unitWeight = parseFloat(unitWeightField.value) || 0;
+                    
+                    if (caseQuantity > 0 && unitWeight > 0) {
+                        const calculatedWeight = caseQuantity * unitWeight;
+                        caseWeightField.value = calculatedWeight;
+                        console.log(`🧮 Auto-calculated case weight: ${caseQuantity} × ${unitWeight} = ${calculatedWeight}`);
+                        
+                        // Trigger change event to mark as modified
+                        caseWeightField.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                }
+                
+                // Add event listeners to trigger calculation when values change
+                caseQuantityField.addEventListener('input', calculateCaseWeight);
+                unitWeightField.addEventListener('input', calculateCaseWeight);
+                
+                // Initial calculation if values are already present
+                if (caseQuantityField.value && unitWeightField.value) {
+                    calculateCaseWeight();
+                }
+                
+                console.log('✅ Case weight auto-calculation set up');
+            } else {
+                console.log('⚠️ Could not set up case weight auto-calculation - missing fields');
+            }
+        }
+        
+        // Insert emoji into the textarea above the button
+        function insertEmoji(button, emoji) {
+            const metafieldItem = button.closest('.metafield-item');
+            const textarea = metafieldItem.querySelector('.metafield-value');
+            
+            if (textarea) {
+                // Clear previous input and set to just the emoji
+                textarea.value = emoji;
+                
+                // Set cursor position after the emoji
+                textarea.selectionStart = emoji.length;
+                textarea.selectionEnd = emoji.length;
+                
+                // Focus back to textarea
+                textarea.focus();
+                
+                // Trigger change event to mark as modified
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                
+                console.log(`✅ Inserted ${emoji} into ${textarea.dataset.key || 'unknown field'}`);
+            } else {
+                console.error('❌ Could not find textarea for emoji insertion');
+            }
+        }
+        
+
+
+        // Save all metafields at once - ULTRA SIMPLIFIED VERSION
+        async function saveAllMetafields() {
+            if (!currentProduct) {
+                alert('No product selected');
+                return;
+            }
+
+            console.log('🔍 Starting save process...');
+            console.log('Current product:', currentProduct);
+
+            // Disable save button and show loading state
+            saveAllBtn.disabled = true;
+            saveAllBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            const metafieldItems = metafieldsContainer.querySelectorAll('.metafield-item');
+            console.log(`📝 Found ${metafieldItems.length} metafield items to process`);
+            
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const item of metafieldItems) {
+                const inputElement = item.querySelector('.metafield-value');
+                const metafieldId = inputElement.dataset.id;
+                const namespace = inputElement.dataset.namespace;
+                const key = inputElement.dataset.key;
+                const metafieldType = inputElement.dataset.type;
+                
+                // Get value based on element type (textarea or select)
+                let value;
+                if (inputElement.tagName === 'SELECT') {
+                    value = inputElement.value;
+                } else {
+                    value = inputElement.value;
+                }
+
+                console.log(`🔍 Processing metafield:`, {
+                    key: key,
+                    namespace: namespace,
+                    id: metafieldId,
+                    type: metafieldType,
+                    value: value.substring(0, 50) + (value.length > 50 ? '...' : '')
+                });
+
+                // Skip if missing essential data
+                if (!key || key === 'null' || key === 'undefined') {
+                    console.log(`⏭️ Skipping ${key} - missing key`);
+                    continue;
+                }
+                if (!namespace || namespace === 'null' || namespace === 'undefined') {
+                    console.log(`⏭️ Skipping ${key} - missing namespace`);
+                    continue;
+                }
+                
+                // Skip empty values for existing metafields
+                if (metafieldId && metafieldId !== 'null' && !value.trim()) {
+                    console.log(`⏭️ Skipping ${key} - empty value for existing metafield`);
+                    continue;
+                }
+
+                try {
+                    let response;
+                    let isNewMetafield = false;
+                    
+                    if (!metafieldId || metafieldId === 'null' || metafieldId === 'undefined') {
+                        // CREATE new metafield
+                        isNewMetafield = true;
+                        console.log(`🆕 Creating new metafield: ${key}`);
+                        const createPayload = {
+                            product_id: currentProduct.id,
+                            namespace: namespace,
+                            key: key,
+                            type: metafieldType,
+                            value: value
+                        };
+                        console.log('Create payload:', createPayload);
+                        
+                        response = await fetch('/api/metafield/create', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(createPayload)
+                        });
+                    } else {
+                        // UPDATE existing metafield
+                        console.log(`🔄 Updating existing metafield: ${key} (ID: ${metafieldId})`);
+                        const updatePayload = {
+                            metafield_id: metafieldId,
+                            value: value,
+                            metafield_type: metafieldType
+                        };
+                        console.log('Update payload:', updatePayload);
+                        
+                        response = await fetch('/api/metafield/update', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(updatePayload)
+                        });
+                    }
+
+                    console.log(`📡 Response status: ${response.status} ${response.statusText}`);
+                    
+                    if (response.ok) {
+                        successCount++;
+                        inputElement.style.borderColor = '#28a745';
+                        console.log(`✅ Successfully ${isNewMetafield ? 'created' : 'updated'} metafield: ${key}`);
+                        
+                        if (isNewMetafield) {
+                            try {
+                                const result = await response.json();
+                                console.log('Create response:', result);
+                                if (result.id) {
+                                    inputElement.dataset.id = result.id;
+                                    console.log(`🆔 Updated input element dataset.id to: ${result.id}`);
+                                }
+                            } catch (e) {
+                                console.log('⚠️ Could not parse create response:', e);
+                            }
+                        }
+                    } else {
+                        errorCount++;
+                        inputElement.style.borderColor = '#dc3545';
+                        console.log(`❌ Failed to ${isNewMetafield ? 'create' : 'update'} metafield: ${key}`);
+                        
+                        try {
+                            const errorText = await response.text();
+                            console.log(`🚨 Error response: ${errorText}`);
+                        } catch (e) {
+                            console.log('⚠️ Could not read error response:', e);
+                        }
+                    }
+                } catch (error) {
+                    errorCount++;
+                    textarea.style.borderColor = '#dc3545';
+                }
+            }
+
+            // After save, trigger Price Bandit for this product
+            try {
+                await fetch('/api/price-bandit/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product_id: currentProduct.id }) });
+            } catch (e) {
+                console.log('Price Bandit trigger failed:', e);
+            }
+
+            // Reset button state
+            saveAllBtn.disabled = false;
+            saveAllBtn.innerHTML = '<i class="fas fa-save"></i> Save All Changes';
+
+            // Show results
+            if (errorCount === 0 && successCount > 0) {
+                alert(`✅ Successfully saved ${successCount} metafields!`);
+            } else if (successCount > 0) {
+                alert(`⚠️ Saved ${successCount} metafields, but ${errorCount} failed. Check red borders for errors.`);
+            } else {
+                alert(`❌ No metafields were saved successfully.`);
+            }
+
+            // Reset border colors after 3 seconds
+            setTimeout(() => {
+                metafieldItems.forEach(item => {
+                    const textarea = item.querySelector('.metafield-value');
+                    textarea.style.borderColor = '#ced4da';
+                });
+            }, 3000);
+        }
+
+
+
+
+
+        // Autocomplete functionality
+        productInput.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase();
+            console.log('Input event triggered with query:', query);
+            
+            clearTimeout(autocompleteTimeout);
+            
+            if (query.length < 2) {
+                hideAutocomplete();
+                return;
+            }
+
+            autocompleteTimeout = setTimeout(() => {
+                showAutocomplete(query);
+            }, 300);
+        });
+
+        function showAutocomplete(query) {
+            console.log('showAutocomplete called with query:', query);
+            console.log('allProducts available:', allProducts);
+            
+            const matches = allProducts.filter(product => {
+                const name = product.title.toLowerCase();
+                const id = product.id.toString();
+                const sku = (product.variants && product.variants[0] && product.variants[0].sku) || '';
+                const matches = name.includes(query) || id.includes(query) || sku.toLowerCase().includes(query);
+                console.log(`Product "${product.title}" (ID: ${product.id}): name="${name}", id="${id}", sku="${sku}" - matches: ${matches}`);
+                return matches;
+            }).slice(0, 8);
+
+            console.log('Filtered matches:', matches);
+
+            if (matches.length === 0) {
+                hideAutocomplete();
+                return;
+            }
+
+            autocompleteDropdown.innerHTML = '';
+            matches.forEach(product => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.innerHTML = `
+                    <div class="product-name">${product.title}</div>
+                    <div class="product-id">ID: ${product.id} | SKU: ${product.variants && product.variants[0] && product.variants[0].sku ? product.variants[0].sku : 'N/A'}</div>
+                `;
+                
+                item.addEventListener('click', () => {
+                    console.log('Product clicked:', product.title);
+                    productInput.value = product.title;
+                    hideAutocomplete();
+                    // Auto-run search when product is selected
+                    searchProduct(product.title);
+                });
+                
+                autocompleteDropdown.appendChild(item);
+            });
+
+            autocompleteDropdown.style.display = 'block';
+        }
+
+        function hideAutocomplete() {
+            autocompleteDropdown.style.display = 'none';
+        }
+
+        // Hide autocomplete when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!productInput.contains(event.target) && !autocompleteDropdown.contains(event.target)) {
+                hideAutocomplete();
+            }
+        });
+
+        // Allow Enter key to trigger search
+        productInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                hideAutocomplete();
+                const query = productInput.value.trim();
+                if (query) {
+                    searchProduct(query);
+                }
+            }
+        });
+
+        // Hide autocomplete on input focus out
+        productInput.addEventListener('blur', function() {
+            setTimeout(hideAutocomplete, 200);
+        });
+    </script>
+</body>
+</html>
+

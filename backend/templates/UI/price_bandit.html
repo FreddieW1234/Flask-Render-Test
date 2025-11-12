@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Bandit - Shopify Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 15px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 18px 25px;
+            margin-bottom: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 400;
+            margin: 0;
+        }
+
+        .app-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .app-tabs-row {
+            display: contents;
+        }
+
+        .app-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .app-tab:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .app-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .app-tab i {
+            font-size: 0.9rem;
+        }
+
+        .app-tab span {
+            white-space: nowrap;
+        }
+
+        .dashboard-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .dashboard-tab:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .dashboard-tab i {
+            font-size: 1rem;
+        }
+
+        .tool-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .tool-section h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #333;
+            text-align: center;
+        }
+
+        .controls-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            gap: 20px;
+        }
+
+        .search-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .all-products-btn {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .all-products-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+        }
+
+        .run-button {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+
+
+
+        .product-input {
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 300px;
+            transition: border-color 0.3s ease;
+        }
+
+        .product-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .autocomplete-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .autocomplete-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+
+        .autocomplete-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item .product-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .autocomplete-item .product-id {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .run-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
+        }
+
+        .run-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .output-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            height: calc(100vh - 350px);
+            max-height: calc(100vh - 350px);
+            min-height: 300px;
+            overflow-y: auto;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+
+        .output-container pre {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin: 0;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .selected-products-container {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            min-height: 60px;
+        }
+
+        .selected-products-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .selected-products-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 20px;
+        }
+
+        .selected-product-tag {
+            background: #6c757d;
+            color: white;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 200px;
+            word-wrap: break-word;
+        }
+
+        .selected-product-tag .product-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .clear-selection-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none; /* Hidden by default */
+        }
+
+        .clear-selection-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .remove-product-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 0.7rem;
+            padding: 0;
+            margin-left: 5px;
+            transition: opacity 0.2s ease;
+        }
+
+        .remove-product-btn:hover {
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tool-section {
+                padding: 20px;
+            }
+            
+            .controls-container {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            
+            .search-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .product-input {
+                width: 100%;
+            }
+            
+            .selected-products-container {
+                margin-top: 10px;
+            }
+            
+            .selected-products-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .selected-products-list {
+                gap: 6px;
+            }
+            
+            .selected-product-tag {
+                max-width: 100%;
+                font-size: 0.75rem;
+                padding: 3px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>
+                    <i class="fas fa-dollar-sign" style="color: #28a745;"></i>
+                    Price Bandit
+                </h1>
+            </div>
+            <div class="header-right">
+                <div class="app-tabs">
+                    <a href="/app/Artwork_Updater" class="app-tab">
+                        <i class="fas fa-palette"></i>
+                        <span>Artwork Updater</span>
+                    </a>
+                    <a href="/app/Field_Finder" class="app-tab">
+                        <i class="fas fa-search"></i>
+                        <span>Field Finder</span>
+                    </a>
+                    <a href="/app/price_bandit" class="app-tab active">
+                        <i class="fas fa-robot"></i>
+                        <span>Price Bandit</span>
+                    </a>
+                    <a href="/app/Price_Manager" class="app-tab">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Price Manager</span>
+                    </a>
+                    <a href="/app/Product_Creator" class="app-tab">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Product Editor/Creator</span>
+                    </a>
+                    <a href="/app/Templates_Uploader" class="app-tab">
+                        <i class="fas fa-file-archive"></i>
+                        <span>Templates Uploader</span>
+                    </a>
+                </div>
+                <a href="/" class="dashboard-tab">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="tool-section">
+            <div class="controls-container">
+                <button id="run-button" class="run-button">
+                    <i class="fas fa-play"></i> Run Price Bandit
+                </button>
+                
+                <div class="search-section">
+                    <div class="autocomplete-container">
+                        <input type="text" id="product-input" class="product-input" placeholder="Enter product name or SKU to add to selection">
+                        <div id="autocomplete-dropdown" class="autocomplete-dropdown" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="selected-products-container">
+                        <div class="selected-products-header">
+                            <span>Selected Products (<span id="selected-count">0</span>/20)</span>
+                            <button id="clear-selection-btn" class="clear-selection-btn" style="display: none;">
+                                <i class="fas fa-times"></i> Clear All
+                            </button>
+                        </div>
+                        <div id="selected-products-list" class="selected-products-list"></div>
+                    </div>
+                    
+                    <button id="all-products-btn" class="all-products-btn">
+                        <i class="fas fa-list"></i> All Products
+                    </button>
+                </div>
+            </div>
+            
+            <div class="output-container">
+                <pre id="output">Ready to run Price Bandit script. Click the button above to start.</pre>
+            </div>
+        </div>
+    </div>
+
+<script>
+        const runButton = document.getElementById('run-button');
+        const allProductsBtn = document.getElementById('all-products-btn');
+        const outputBox = document.getElementById('output');
+        const productInput = document.getElementById('product-input');
+        const autocompleteDropdown = document.getElementById('autocomplete-dropdown');
+        const selectedProductsList = document.getElementById('selected-products-list');
+        const selectedCount = document.getElementById('selected-count');
+        const clearSelectionBtn = document.getElementById('clear-selection-btn');
+        
+        let allProducts = [];
+        let autocompleteTimeout;
+        let selectedProducts = [];
+
+        // Fetch all products for autocomplete
+        async function fetchProducts() {
+            try {
+                const response = await fetch('/api/products');
+                allProducts = await response.json();
+            } catch (error) {
+                console.log('Could not fetch products for autocomplete');
+            }
+        }
+
+        // Initialize products
+        fetchProducts();
+
+        // All Products button click
+        allProductsBtn.addEventListener('click', () => {
+            productInput.value = 'all products';
+            hideAutocomplete();
+            addProductToSelection(null, 'all products'); // Add 'all products' to selection
+        });
+
+        // Run button click
+        runButton.addEventListener('click', () => {
+            // Check if we have selected products or should run on all products
+            let productFilter = '';
+            let eventSourceUrl = '/run/Price_Bandit';
+            
+            if (selectedProducts.length > 0) {
+                // Check if "all products" is selected
+                const hasAllProducts = selectedProducts.some(p => p.name === 'all products');
+                
+                if (hasAllProducts) {
+                    // Run on all products
+                    productFilter = 'all products';
+                    outputBox.textContent = "Starting Price Bandit script for all products...\n";
+                } else {
+                    // Run on selected products only
+                    const productNames = selectedProducts.map(p => p.name).join(', ');
+                    productFilter = productNames;
+                    outputBox.textContent = `Starting Price Bandit script for selected products: ${productNames}...\n`;
+                    
+                    // Add product IDs as query parameters
+                    const productIds = selectedProducts.map(p => p.id).filter(id => id !== null);
+                    if (productIds.length > 0) {
+                        eventSourceUrl += `?products=${productIds.join(',')}`;
+                    }
+                }
+            } else {
+                // No products selected, run on all products (existing behavior)
+                productFilter = 'all products';
+                outputBox.textContent = "Starting Price Bandit script for all products...\n";
+            }
+            
+            // Show running state
+            runButton.disabled = true;
+            runButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+            
+            // Create EventSource for real-time output
+            const eventSource = new EventSource(eventSourceUrl);
+            let output = '';
+
+        eventSource.onmessage = function(event) {
+                output += event.data + '\n';
+                outputBox.textContent = output;
+                
+                // Force auto-scroll to bottom for live updates
+                const outputContainer = outputBox.parentElement;
+                outputContainer.scrollTop = outputContainer.scrollHeight;
+                
+                // Also ensure the pre element scrolls if needed
+            outputBox.scrollTop = outputBox.scrollHeight;
+        };
+
+        eventSource.onerror = function(event) {
+            eventSource.close();
+                
+                // Reset button
+                runButton.disabled = false;
+                runButton.innerHTML = '<i class="fas fa-play"></i> Run Price Bandit';
+                
+                if (output.trim()) {
+                    // Script completed with output
+                } else {
+                    // Script completed with no output
+                }
+        };
+    });
+
+        // Autocomplete functionality
+        productInput.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase();
+            
+            clearTimeout(autocompleteTimeout);
+            
+            if (query.length < 2) {
+                hideAutocomplete();
+                return;
+            }
+
+            autocompleteTimeout = setTimeout(() => {
+                showAutocomplete(query);
+            }, 300);
+        });
+
+        function showAutocomplete(query) {
+            const matches = allProducts.filter(product => {
+                const name = product.title.toLowerCase();
+                const id = product.id.toString();
+                const sku = (product.variants && product.variants[0] && product.variants[0].sku) || '';
+                return name.includes(query) || id.includes(query) || sku.toLowerCase().includes(query);
+            }).slice(0, 8); // Show max 8 results
+
+            if (matches.length === 0) {
+                hideAutocomplete();
+                return;
+            }
+
+            autocompleteDropdown.innerHTML = '';
+            matches.forEach(product => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.innerHTML = `
+                    <div class="product-name">${product.title}</div>
+                    <div class="product-id">ID: ${product.id} | SKU: ${product.variants && product.variants[0] && product.variants[0].sku ? product.variants[0].sku : 'N/A'}</div>
+                `;
+                
+                item.addEventListener('click', () => {
+                    productInput.value = product.title;
+                    hideAutocomplete();
+                    addProductToSelection(product.id, product.title);
+                });
+                
+                autocompleteDropdown.appendChild(item);
+            });
+
+            autocompleteDropdown.style.display = 'block';
+        }
+
+        function hideAutocomplete() {
+            autocompleteDropdown.style.display = 'none';
+        }
+
+        // Hide autocomplete when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!productInput.contains(event.target) && !autocompleteDropdown.contains(event.target)) {
+                hideAutocomplete();
+            }
+        });
+
+        // Allow Enter key to trigger the run button
+        productInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                hideAutocomplete();
+                runButton.click();
+            }
+        });
+
+        // Hide autocomplete on input focus out
+        productInput.addEventListener('blur', function() {
+            setTimeout(hideAutocomplete, 200);
+    });
+
+        // Add product to selection
+        function addProductToSelection(id, name) {
+            if (selectedProducts.length >= 20) {
+                alert('You can select up to 20 products.');
+                return;
+            }
+            if (selectedProducts.some(p => p.id === id)) {
+                alert('This product is already in the selection.');
+                return;
+            }
+            selectedProducts.push({ id: id, name: name });
+            updateSelectedProductsDisplay();
+            updateClearSelectionButton();
+        }
+
+        // Remove product from selection
+        function removeProductFromSelection(id) {
+            selectedProducts = selectedProducts.filter(p => p.id !== id);
+            updateSelectedProductsDisplay();
+            updateClearSelectionButton();
+        }
+
+        // Update selected products display
+        function updateSelectedProductsDisplay() {
+            selectedProductsList.innerHTML = '';
+            selectedProducts.forEach(product => {
+                const tag = document.createElement('span');
+                tag.className = 'selected-product-tag';
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'product-name';
+                nameSpan.textContent = product.name;
+                tag.appendChild(nameSpan);
+                
+                if (product.id !== null) { // Don't show remove button for 'all products'
+                    const removeButton = document.createElement('button');
+                    removeButton.className = 'remove-product-btn';
+                    removeButton.innerHTML = '<i class="fas fa-times"></i>';
+                    removeButton.onclick = () => removeProductFromSelection(product.id);
+                    tag.appendChild(removeButton);
+                }
+                
+                selectedProductsList.appendChild(tag);
+            });
+            selectedCount.textContent = selectedProducts.length;
+        }
+
+        // Update clear selection button visibility
+        function updateClearSelectionButton() {
+            clearSelectionBtn.style.display = selectedProducts.length > 0 ? 'inline-flex' : 'none';
+        }
+
+        // Clear all selected products
+        clearSelectionBtn.addEventListener('click', () => {
+            selectedProducts = [];
+            updateSelectedProductsDisplay();
+            updateClearSelectionButton();
+            productInput.value = ''; // Clear input field
+            hideAutocomplete();
+        });
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: shopify-component-toolkit
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn app:app --chdir backend --bind 0.0.0.0:$PORT
+    autoDeploy: true
+    envVars:
+      - key: SHOPIFY_STORE_DOMAIN
+        sync: false
+      - key: SHOPIFY_API_VERSION
+        value: "2025-07"
+      - key: SHOPIFY_ACCESS_TOKEN
+        sync: false
+

@@ -1,0 +1,2296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Manager - Shopify Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: fit-content;
+            min-height: fit-content;
+            color: #333;
+            padding: 15px;
+            margin: 0;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: fit-content;
+            min-height: fit-content;
+            position: relative;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 18px 25px;
+            margin-bottom: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 400;
+            margin: 0;
+        }
+
+        .app-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .app-tabs-row {
+            display: contents;
+        }
+
+        .app-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .app-tab:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .app-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .app-tab i {
+            font-size: 0.9rem;
+        }
+
+        .app-tab span {
+            white-space: nowrap;
+        }
+
+        .dashboard-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .dashboard-tab:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .dashboard-tab i {
+            font-size: 1rem;
+        }
+
+        .tool-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            height: fit-content;
+            min-height: fit-content;
+            position: relative;
+        }
+
+        .tool-section h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #333;
+            text-align: center;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .product-input {
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 400px;
+            transition: border-color 0.3s ease;
+        }
+
+        .product-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .autocomplete-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .autocomplete-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+
+        .autocomplete-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item .product-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .autocomplete-item .product-id {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .metafield-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            height: fit-content;
+            min-height: fit-content;
+            overflow: visible;
+        }
+
+        .metafield-box {
+            flex: 1;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+            min-height: fit-content;
+            overflow: visible;
+        }
+
+        .metafield-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f8f9fa;
+            justify-content: space-between;
+        }
+
+        .metafield-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .metafield-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .metafield-button {
+            padding: 6px 12px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            background: white;
+            color: #667eea;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .metafield-button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .metafield-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .save-button {
+            padding: 8px 16px;
+            border: 2px solid #28a745;
+            border-radius: 6px;
+            background: #28a745;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .save-button:hover {
+            background: #218838;
+            border-color: #218838;
+        }
+
+        .save-button:disabled {
+            background: #6c757d;
+            border-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .save-all-button {
+            padding: 12px 24px;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            background: #28a745;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .save-all-button:hover:not(:disabled) {
+            background: #218838;
+            border-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .save-all-button:disabled {
+            background: #6c757d;
+            border-color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .search-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .qty-match-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .qty-match-checkbox input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #667eea;
+            border-radius: 4px;
+            background: white;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .qty-match-checkbox input[type="checkbox"]:checked + .checkmark {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .qty-match-checkbox input[type="checkbox"]:checked + .checkmark::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .qty-match-checkbox:hover .checkmark {
+            border-color: #5a6fd8;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .qty-match-checkbox input[type="checkbox"]:checked + .checkmark:hover {
+            background: #5a6fd8;
+            border-color: #5a6fd8;
+        }
+
+        .label-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* removed price-sync-checkbox (merged into qty-match-checkbox) */
+
+        /* removed */
+
+        /* removed */
+
+        /* removed */
+
+        /* removed */
+
+        /* removed */
+
+        /* removed */
+
+        /* removed */
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 35px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border: 2px solid #e9ecef;
+            position: relative;
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 5px;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .terminal-output {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #00ff88;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            padding: 25px;
+            border-radius: 12px;
+            max-height: 450px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            border: 2px solid #00ff88;
+            box-shadow: 0 8px 32px rgba(0, 255, 136, 0.2);
+            position: relative;
+            font-size: 14px;
+        }
+
+        .terminal-output::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00ff88, #00d4ff, #00ff88);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .terminal-output::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal-output::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .terminal-output::-webkit-scrollbar-thumb {
+            background: #00ff88;
+            border-radius: 4px;
+        }
+
+        .terminal-output::-webkit-scrollbar-thumb:hover {
+            background: #00d4ff;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e9ecef;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .status-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #e9ecef;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-text {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00d4ff, #667eea);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 6px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .metafield-content {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            height: fit-content;
+            min-height: fit-content;
+            overflow: visible;
+        }
+
+        .metafield-content.string-array {
+            background: #f8f9fa;
+            border-color: #e9ecef;
+            color: #333;
+        }
+
+        .no-data {
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .metafield-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .metafield-table th {
+            background-color: #2f405b;
+            color: white;
+            padding: 12px;
+            border: 1px solid #ddd;
+            font-weight: 600;
+            text-align: center;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .metafield-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+            background-color: white;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .metafield-table tr:nth-child(even) td {
+            background-color: #f8f9fa;
+        }
+
+        .metafield-table tr:hover td {
+            background-color: #e8f5e8;
+        }
+
+        .metafield-table input {
+            width: 100%;
+            border: none;
+            padding: 4px;
+            text-align: center;
+            background: transparent;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .add-row-button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .add-row-button:hover {
+            background: #5a6fd8;
+        }
+
+        .metafield-table input:focus {
+            outline: none;
+            background: #f0f8ff;
+        }
+        /* Currency input with £ prefix (display-only) */
+        .currency-input { position: relative; display: inline-flex; align-items: center; width: 100%; justify-content: center; }
+        .currency-input > input[type="number"] { text-align: center; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tool-section {
+                padding: 20px;
+            }
+            
+            .product-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>
+                    <i class="fas fa-chart-line" style="color: #28a745;"></i>
+                    Price Manager
+                </h1>
+            </div>
+            <div class="header-right">
+                <div class="app-tabs">
+                    <a href="/app/Artwork_Updater" class="app-tab">
+                        <i class="fas fa-palette"></i>
+                        <span>Artwork Updater</span>
+                    </a>
+                    <a href="/app/Field_Finder" class="app-tab">
+                        <i class="fas fa-search"></i>
+                        <span>Field Finder</span>
+                    </a>
+                    <a href="/app/price_bandit" class="app-tab">
+                        <i class="fas fa-robot"></i>
+                        <span>Price Bandit</span>
+                    </a>
+                    <a href="/app/Price_Manager" class="app-tab active">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Price Manager</span>
+                    </a>
+                    <a href="/app/Product_Creator" class="app-tab">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Product Editor/Creator</span>
+                    </a>
+                    <a href="/app/Templates_Uploader" class="app-tab">
+                        <i class="fas fa-file-archive"></i>
+                        <span>Templates Uploader</span>
+                    </a>
+                </div>
+                <a href="/" class="dashboard-tab">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="tool-section">
+            <div class="search-container">
+                <div class="autocomplete-container">
+                    <input type="text" id="product-input" class="product-input" placeholder="Enter product name or SKU">
+                    <div id="autocomplete-dropdown" class="autocomplete-dropdown" style="display: none;"></div>
+                </div>
+                <div class="search-controls">
+                    <label class="qty-match-checkbox">
+                        <input type="checkbox" id="qty-match-checkbox" checked>
+                        <span class="checkmark"></span>
+                        <span class="label-text">Match quantities and increase price by 30%</span>
+                    </label>
+                    <button id="save-all-button" class="save-all-button" disabled>
+                        <i class="fas fa-save"></i> Save All
+                    </button>
+                </div>
+            </div>
+            
+            <div class="metafield-container" id="metafields-container">
+                <div class="metafield-box">
+                    <div class="metafield-header">
+                        <span class="metafield-title">Trade</span>
+                        <div class="metafield-buttons">
+                            <button class="metafield-button active">Table</button>
+                            <button class="metafield-button">JSON</button>
+                            <button class="save-button" data-metafield="pricejsontr">Save</button>
+                        </div>
+                    </div>
+                    <div class="metafield-content" id="trade-content">
+                        <div class="no-data">Search for a product to view prices</div>
+                    </div>
+                </div>
+                
+                <div class="metafield-box">
+                    <div class="metafield-header">
+                        <span class="metafield-title">End Customer</span>
+                        <div class="metafield-buttons">
+                            <button class="metafield-button active">Table</button>
+                            <button class="metafield-button">JSON</button>
+                            <button class="save-button" data-metafield="pricejsoner">Save</button>
+                        </div>
+                    </div>
+                    <div class="metafield-content" id="end-customer-content">
+                        <div class="no-data">Search for a product to view prices</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Process Modal -->
+    <div class="modal-overlay" id="saveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Saving Price Data & Running Price Bandit</h3>
+                <button class="modal-close" onclick="closeSaveModal()">&times;</button>
+            </div>
+            
+            <div class="status-indicator">
+                <div class="status-spinner" id="statusSpinner"></div>
+                <span class="status-text" id="statusText">Initializing save process...</span>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="terminal-output" id="terminalOutput">
+                Starting save process...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const productInput = document.getElementById('product-input');
+            const autocompleteDropdown = document.getElementById('autocomplete-dropdown');
+            const metafieldsContainer = document.getElementById('metafields-container');
+            
+            let allProducts = [];
+            let autocompleteTimeout;
+            let currentProductData = null;
+            let currentPriceData = { trade: [], endCustomer: [] };
+
+            // Fetch all products for autocomplete
+            async function fetchProducts() {
+                try {
+                    const response = await fetch('/api/products');
+                    allProducts = await response.json();
+                } catch (error) {
+                    console.log('Could not fetch products for autocomplete');
+                }
+            }
+
+            // Initialize products
+            fetchProducts();
+            
+            // Set Trade button as active by default
+            const tradeButton = document.querySelector('[data-type="trade"]');
+            if (tradeButton) {
+                tradeButton.classList.add('active');
+            }
+            
+            // Initialize tables with empty rows by default
+            function initializeTables() {
+                // Don't create any table structure initially - wait for product selection
+                // Tables will be created in displayPriceMetafields when a product is selected
+            }
+            
+            // Initialize tables
+            initializeTables();
+            
+            // Handle metafield box button clicks
+            document.querySelectorAll('.metafield-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const metafieldBox = this.closest('.metafield-box');
+                    const contentId = metafieldBox.querySelector('.metafield-content').id;
+                    const tableBodyId = contentId.replace('-content', '-table-body');
+                    const jsonId = contentId.replace('-content', '-json');
+                    
+                    if (this.textContent.trim() === 'Table') {
+                        showEditableTable(contentId, tableBodyId);
+                    } else if (this.textContent.trim() === 'JSON') {
+                        showRawJSON(contentId, jsonId);
+                    }
+                });
+            });
+
+            // Handle Add New Row button clicks
+            document.addEventListener('click', function(event) {
+                if (event.target.classList.contains('add-row-button')) {
+                    const metafieldContent = event.target.closest('.metafield-content');
+                    if (metafieldContent) {
+                        const tableBody = metafieldContent.querySelector('tbody');
+                        if (tableBody) {
+                            addNewRow(tableBody.id);
+                            // Format prices to 2dp after using the button
+                            const table = metafieldContent.querySelector('.metafield-table');
+                            if (table) {
+                                table.querySelectorAll('input[data-field="price"]').forEach(inp => {
+                                    let v = (inp.value || '').replace(/^£\s*/, '');
+                                    if (v !== '' && !isNaN(parseFloat(v))) {
+                                        inp.value = '£' + (parseFloat(v)).toFixed(2);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Handle Save button clicks
+            document.addEventListener('click', function(event) {
+                if (event.target.classList.contains('save-button')) {
+                    const saveButton = event.target;
+                    const metafieldBox = saveButton.closest('.metafield-box');
+                    const contentId = metafieldBox.querySelector('.metafield-content').id;
+                    const metafieldKey = saveButton.dataset.metafield;
+                    
+                    // Get current synchronized data based on content ID
+                    let currentData = [];
+                    if (contentId === 'trade-content') {
+                        currentData = currentPriceData.trade || [];
+                    } else if (contentId === 'end-customer-content') {
+                        currentData = currentPriceData.endCustomer || [];
+                    }
+                    
+                    // Ensure we have valid data
+                    if (!Array.isArray(currentData) || currentData.length === 0) {
+                        alert('No valid data to save. Please add some price data first.');
+                        return;
+                    }
+                    
+                    // Save the data
+                    saveMetafieldData(metafieldKey, currentData, saveButton);
+                }
+            });
+
+            // Handle Save All button click
+            document.getElementById('save-all-button').addEventListener('click', function() {
+                saveAllMetafields();
+            });
+
+            // Handle combined checkbox
+            document.getElementById('qty-match-checkbox').addEventListener('change', function() {
+                if (this.checked) {
+                    syncQuantityRanges();
+                    syncPricesFromTrade();
+                }
+                updateEndCustomerEditability();
+            });
+
+            // Function to save metafield data
+            async function saveMetafieldData(metafieldKey, data, saveButton) {
+                if (!currentProductData || !currentProductData.id) {
+                    alert('No product selected. Please search for a product first.');
+                    return;
+                }
+                
+                // Show the modal
+                showSaveModal();
+                
+                try {
+                    // Update status
+                    updateModalStatus('Saving price data to Shopify...', 25);
+                    updateTerminalOutput('🔄 Connecting to Shopify API...\n');
+                    
+                    saveButton.disabled = true;
+                    saveButton.textContent = 'Saving...';
+                    
+                    const response = await fetch('/api/update_metafield', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            product_id: currentProductData.id,
+                            metafield_key: metafieldKey,
+                            metafield_value: data
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        updateModalStatus('Price data saved successfully!', 50);
+                        updateTerminalOutput('✅ Price data saved to Shopify successfully!\n');
+                        
+                        // Update local data
+                        if (metafieldKey === 'pricejsontr') {
+                            currentPriceData.trade = data;
+                        } else if (metafieldKey === 'pricejsoner') {
+                            currentPriceData.endCustomer = data;
+                        }
+                        
+                        // Update the metafield in currentProductData
+                        if (currentProductData.metafields) {
+                            let metafield = currentProductData.metafields.find(m => m.key === metafieldKey);
+                            if (metafield) {
+                                metafield.value = data;
+                            } else {
+                                currentProductData.metafields.push({
+                                    key: metafieldKey,
+                                    namespace: 'custom',
+                                    value: data
+                                });
+                            }
+                        }
+                        
+                        // Now run Price Bandit
+                        updateModalStatus('Running Price Bandit to update pricing...', 75);
+                        updateTerminalOutput('🔄 Triggering Price Bandit for product updates...\n');
+                        
+                        // Wait for Price Bandit to complete (it runs automatically after save)
+                        updateTerminalOutput('⏳ Price Bandit is now running in the background...\n');
+                        updateTerminalOutput('📊 This may take a few moments depending on the product complexity...\n');
+                        
+                        // Give some time for Price Bandit to process
+                        await new Promise(resolve => setTimeout(resolve, 3000));
+                        
+                        updateModalStatus('All tasks completed successfully!', 100);
+                        updateTerminalOutput('✅ Price Bandit execution completed!\n');
+                        updateTerminalOutput('🎉 All operations completed successfully!\n');
+                        updateTerminalOutput('💡 Your product pricing has been updated in Shopify!\n');
+                        
+                        // Auto-close after 2 seconds
+                        setTimeout(() => {
+                            closeSaveModal();
+                        }, 2000);
+                        
+                    } else {
+                        throw new Error('Failed to save data');
+                    }
+                } catch (error) {
+                    console.error('Error saving metafield:', error);
+                    updateModalStatus('Error occurred during save process', 100);
+                    updateTerminalOutput(`❌ Error: ${error.message}\n`);
+                    updateTerminalOutput('Please try again or contact support.\n');
+                    
+                    // Auto-close after 2 seconds on error
+                    setTimeout(() => {
+                        closeSaveModal();
+                    }, 2000);
+                } finally {
+                    saveButton.disabled = false;
+                    saveButton.textContent = 'Save';
+                }
+            }
+
+            // Function to save all metafields simultaneously
+            async function saveAllMetafields() {
+                if (!currentProductData || !currentProductData.id) {
+                    alert('No product selected. Please search for a product first.');
+                    return;
+                }
+                
+                // Check if we have valid data to save
+                const tradeData = currentPriceData.trade || [];
+                const endCustomerData = currentPriceData.endCustomer || [];
+                
+                if ((!Array.isArray(tradeData) || tradeData.length === 0) && 
+                    (!Array.isArray(endCustomerData) || endCustomerData.length === 0)) {
+                    alert('No valid data to save. Please add some price data first.');
+                    return;
+                }
+                
+                // Show the modal
+                showSaveModal();
+                
+                try {
+                    const saveAllButton = document.getElementById('save-all-button');
+                    saveAllButton.disabled = true;
+                    saveAllButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                    
+                    updateModalStatus('Saving all price data to Shopify...', 25);
+                    updateTerminalOutput('🔄 Starting to save all price data...\n');
+                    
+                    let successCount = 0;
+                    let totalToSave = 0;
+                    
+                    // Count how many metafields we need to save
+                    if (Array.isArray(tradeData) && tradeData.length > 0) totalToSave++;
+                    if (Array.isArray(endCustomerData) && endCustomerData.length > 0) totalToSave++;
+                    
+                    // Save Trade data if it exists
+                    if (Array.isArray(tradeData) && tradeData.length > 0) {
+                        updateTerminalOutput('📊 Saving Trade price data...\n');
+                        const tradeResponse = await fetch('/api/update_metafield', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                product_id: currentProductData.id,
+                                metafield_key: 'pricejsontr',
+                                metafield_value: tradeData
+                            })
+                        });
+                        
+                        if (tradeResponse.ok) {
+                            successCount++;
+                            updateTerminalOutput('✅ Trade price data saved successfully!\n');
+                        } else {
+                            updateTerminalOutput('❌ Failed to save Trade price data\n');
+                        }
+                    }
+                    
+                    // Save End Customer data if it exists
+                    if (Array.isArray(endCustomerData) && endCustomerData.length > 0) {
+                        updateTerminalOutput('📊 Saving End Customer price data...\n');
+                        const endCustomerResponse = await fetch('/api/update_metafield', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                product_id: currentProductData.id,
+                                metafield_key: 'pricejsoner',
+                                metafield_value: endCustomerData
+                            })
+                        });
+                        
+                        if (endCustomerResponse.ok) {
+                            successCount++;
+                            updateTerminalOutput('✅ End Customer price data saved successfully!\n');
+                        } else {
+                            updateTerminalOutput('❌ Failed to save End Customer price data\n');
+                        }
+                    }
+                    
+                    if (successCount === totalToSave) {
+                        updateModalStatus('All price data saved successfully!', 75);
+                        updateTerminalOutput('🎉 All price data saved successfully!\n');
+                        
+                        // Now run Price Bandit
+                        updateModalStatus('Running Price Bandit to update pricing...', 90);
+                        updateTerminalOutput('🔄 Triggering Price Bandit for product updates...\n');
+                        
+                        // Wait for Price Bandit to complete (it runs automatically after save)
+                        updateTerminalOutput('⏳ Price Bandit is now running in the background...\n');
+                        updateTerminalOutput('📊 This may take a few moments depending on the product complexity...\n');
+                        
+                        // Give some time for Price Bandit to process
+                        await new Promise(resolve => setTimeout(resolve, 3000));
+                        
+                        updateModalStatus('All tasks completed successfully!', 100);
+                        updateTerminalOutput('✅ Price Bandit execution completed!\n');
+                        updateTerminalOutput('🎉 All operations completed successfully!\n');
+                        updateTerminalOutput('💡 Your product pricing has been updated in Shopify!\n');
+                        
+                        // Auto-close after 2 seconds
+                        setTimeout(() => {
+                            closeSaveModal();
+                        }, 2000);
+                        
+                    } else {
+                        throw new Error(`Only ${successCount} out of ${totalToSave} metafields were saved successfully`);
+                    }
+                    
+                } catch (error) {
+                    console.error('Error saving all metafields:', error);
+                    updateModalStatus('Error occurred during save process', 100);
+                    updateTerminalOutput(`❌ Error: ${error.message}\n`);
+                    updateTerminalOutput('Please try again or contact support.\n');
+                    
+                    // Auto-close after 2 seconds on error
+                    setTimeout(() => {
+                        closeSaveModal();
+                    }, 2000);
+                } finally {
+                    const saveAllButton = document.getElementById('save-all-button');
+                    saveAllButton.disabled = false;
+                    saveAllButton.innerHTML = '<i class="fas fa-save"></i> Save All';
+                }
+            }
+
+            // Modal control functions
+            function showSaveModal() {
+                const modal = document.getElementById('saveModal');
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                
+                // Reset modal state
+                updateModalStatus('Initializing save process...', 0);
+                updateTerminalOutput('Starting save process...\n');
+                updateProgressBar(0);
+            }
+
+            function closeSaveModal() {
+                const modal = document.getElementById('saveModal');
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            }
+
+            function updateModalStatus(text, progress) {
+                const statusText = document.getElementById('statusText');
+                const progressFill = document.getElementById('progressFill');
+                
+                if (statusText) statusText.textContent = text;
+                if (progressFill) updateProgressBar(progress);
+            }
+
+            function updateProgressBar(percentage) {
+                const progressFill = document.getElementById('progressFill');
+                if (progressFill) {
+                    progressFill.style.width = percentage + '%';
+                }
+            }
+
+            function updateTerminalOutput(text) {
+                const terminal = document.getElementById('terminalOutput');
+                if (terminal) {
+                    // Add timestamp to each line
+                    const timestamp = new Date().toLocaleTimeString();
+                    const formattedText = `[${timestamp}] ${text}`;
+                    terminal.textContent += formattedText;
+                    terminal.scrollTop = terminal.scrollHeight; // Auto-scroll to bottom
+                }
+            }
+            
+            // Show editable table for a metafield box
+            function showEditableTable(contentId, tableBodyId) {
+                const content = document.getElementById(contentId);
+                
+                // Check if table structure exists, if not create it
+                let tableElement = content.querySelector('.metafield-table');
+                if (!tableElement) {
+                    // Create the table structure
+                    content.innerHTML = `
+                        <table class="metafield-table">
+                            <thead>
+                                <tr>
+                                    <th>Min</th>
+                                    <th>Max</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="${tableBodyId}"></tbody>
+                        </table>
+                        <button class="add-row-button">Add New Row</button>
+                    `;
+                    tableElement = content.querySelector('.metafield-table');
+                }
+                
+                // Show table content
+                const addRowButton = content.querySelector('.add-row-button');
+                
+                if (tableElement) {
+                    tableElement.style.display = 'table';
+                }
+                if (addRowButton) {
+                    addRowButton.style.display = 'block';
+                }
+                // Apply initial lock state for right table
+                updateEndCustomerEditability();
+                // Setup first-row placeholder behavior (hide on focus, restore on blur when empty)
+                setupFirstRowPlaceholderHandlers(contentId);
+                
+                // Get the metafield data based on content ID
+                let metafieldData = [];
+                if (contentId === 'trade-content') {
+                    metafieldData = currentProductData?.metafields?.find(m => m.key === 'pricejsontr')?.value || [];
+                } else if (contentId === 'end-customer-content') {
+                    metafieldData = currentProductData?.metafields?.find(m => m.key === 'pricejsoner')?.value || [];
+                }
+                
+                // Parse JSON if it's a string
+                if (typeof metafieldData === 'string') {
+                    try {
+                        metafieldData = JSON.parse(metafieldData);
+                    } catch (e) {
+                        metafieldData = [];
+                    }
+                }
+                
+                // Ensure metafieldData is an array
+                if (!Array.isArray(metafieldData)) {
+                    metafieldData = [];
+                }
+                
+                // Populate the table
+                const tableBody = document.getElementById(tableBodyId);
+                if (tableBody) {
+                    tableBody.innerHTML = '';
+                    
+                    if (metafieldData.length > 0) {
+                        // Add rows for existing data
+                        metafieldData.forEach((item, index) => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td><input type="number" value="${item.min || 1}" data-index="${index}" data-field="min"></td>
+                                <td><input type="number" value="${item.max || 100}" data-index="${index}" data-field="max"></td>
+                                <td><div class="currency-input"><input type="text" inputmode="decimal" value="${item.price || ''}" data-index="${index}" data-field="price" placeholder=""></div></td>
+                            `;
+                            tableBody.appendChild(row);
+                            
+                            // Add event listeners to inputs
+                            const inputs = row.querySelectorAll('input');
+                            inputs.forEach(input => {
+                                input.addEventListener('keydown', handleInputKeydown);
+                                input.addEventListener('input', handleInputChange);
+                                if (input.dataset.field === 'price') {
+                                    input.addEventListener('focus', handlePriceFocus);
+                                    input.addEventListener('blur', handlePriceBlur);
+                                    input.addEventListener('keydown', handlePriceKeydown);
+                                    input.addEventListener('keyup', () => enforcePriceCaretBounds(input));
+                                    input.addEventListener('click', () => enforcePriceCaretBounds(input));
+                                }
+                                if (contentId === 'end-customer-content') {
+                                    input.toggleAttribute('readonly', !!document.getElementById('qty-match-checkbox')?.checked);
+                                }
+                            });
+                            const priceInput = row.querySelector('input[data-field="price"]');
+                            if (priceInput) {
+                                formatPriceInputElement(priceInput);
+                            }
+                            if (contentId === 'end-customer-content') {
+                                updateEndCustomerEditability();
+                            }
+                        });
+                    } else {
+                        // Add a blank row when there's no existing data
+                        const blankRow = document.createElement('tr');
+                        blankRow.innerHTML = `
+                            <td><input type="number" data-index="0" data-field="min" placeholder="Min"></td>
+                            <td><input type="number" data-index="0" data-field="max" placeholder="Max"></td>
+                            <td><div class="currency-input"><input type="text" inputmode="decimal" data-index="0" data-field="price" placeholder="£0.00"></div></td>
+                        `;
+                        tableBody.appendChild(blankRow);
+                        
+                        // Add event listeners to blank row inputs
+                        const inputs = blankRow.querySelectorAll('input');
+                        inputs.forEach(input => {
+                            input.addEventListener('keydown', handleInputKeydown);
+                            input.addEventListener('input', handleInputChange);
+                            if (input.dataset.field === 'price') {
+                                input.addEventListener('focus', handlePriceFocus);
+                                input.addEventListener('blur', handlePriceBlur);
+                                input.addEventListener('keydown', handlePriceKeydown);
+                                input.addEventListener('keyup', () => enforcePriceCaretBounds(input));
+                                input.addEventListener('click', () => enforcePriceCaretBounds(input));
+                            }
+                        });
+                        
+                        // Initialize the currentPriceData with empty values
+                        if (contentId === 'trade-content') {
+                            currentPriceData.trade = [{min: "", max: "", price: ""}];
+                        } else if (contentId === 'end-customer-content') {
+                            currentPriceData.endCustomer = [{min: "", max: "", price: ""}];
+                        }
+                    }
+                }
+                
+                // Update button states
+                const buttons = content.parentNode.querySelectorAll('.metafield-button');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                // Find the Table button and make it active
+                const tableButton = Array.from(buttons).find(btn => btn.textContent.trim() === 'Table');
+                if (tableButton) {
+                    tableButton.classList.add('active');
+                }
+            }
+
+            // Toggle end-customer editability and add-row visibility based on combined checkbox
+            function updateEndCustomerEditability() {
+                const isLocked = !!document.getElementById('qty-match-checkbox')?.checked;
+                const endContent = document.getElementById('end-customer-content');
+                if (!endContent) return;
+                const addBtn = endContent.querySelector('.add-row-button');
+                if (addBtn) addBtn.style.display = isLocked ? 'none' : '';
+                const inputs = endContent.querySelectorAll('input');
+                inputs.forEach(inp => {
+                    if (isLocked) {
+                        inp.setAttribute('readonly', 'readonly');
+                    } else {
+                        inp.removeAttribute('readonly');
+                    }
+                });
+            }
+
+            // Ensure first row placeholders hide on focus and reappear on blur if still empty
+            function setupFirstRowPlaceholderHandlers(contentId) {
+                const content = document.getElementById(contentId);
+                if (!content) return;
+                const table = content.querySelector('.metafield-table');
+                if (!table) return;
+                if (table.dataset.placeholderHandlersAttached === 'true') return;
+                table.dataset.placeholderHandlersAttached = 'true';
+
+                const otherId = contentId === 'trade-content' ? 'end-customer-content' : 'trade-content';
+                function getOtherTable() {
+                    const otherContent = document.getElementById(otherId);
+                    return otherContent ? otherContent.querySelector('.metafield-table') : null;
+                }
+
+                function getDefaultPlaceholder(input) {
+                    const field = input?.dataset?.field;
+                    if (field === 'min') return 'Min';
+                    if (field === 'max') return 'Max';
+                    if (field === 'price') return '£0.00';
+                    return '';
+                }
+
+                function restorePlaceholdersIfEmpty() {
+                    const firstRow = table.querySelector('tbody tr');
+                    if (!firstRow) return;
+                    const inputs = firstRow.querySelectorAll('input');
+                    const anyFocusedInTable = table.contains(document.activeElement);
+                    if (anyFocusedInTable) return;
+                    let allEmpty = true;
+                    inputs.forEach(inp => { if ((inp.value || '').trim() !== '') allEmpty = false; });
+                    if (allEmpty) {
+                        inputs.forEach(inp => { inp.placeholder = getDefaultPlaceholder(inp); });
+                    }
+                }
+
+                table.addEventListener('focusin', function(e) {
+                    const firstRow = table.querySelector('tbody tr');
+                    if (!firstRow) return;
+                    if (firstRow.contains(e.target)) {
+                        firstRow.querySelectorAll('input').forEach(inp => { inp.placeholder = ''; });
+                        // Mirror: also clear placeholders in the other table's first row
+                        const otherTable = getOtherTable();
+                        if (otherTable) {
+                            const otherFirst = otherTable.querySelector('tbody tr');
+                            if (otherFirst) otherFirst.querySelectorAll('input').forEach(inp => { inp.placeholder = ''; });
+                        }
+                    }
+                });
+                table.addEventListener('focusout', function() {
+                    setTimeout(() => {
+                        const active = document.activeElement;
+                        const otherTable = getOtherTable();
+                        const inThis = table.contains(active);
+                        const inOther = otherTable ? otherTable.contains(active) : false;
+                        if (!inThis && !inOther) {
+                            // Restore placeholders for both tables if their first rows are empty
+                            restorePlaceholdersIfEmpty();
+                            if (otherTable) {
+                                const firstRow = otherTable.querySelector('tbody tr');
+                                if (firstRow) {
+                                    const inputs = firstRow.querySelectorAll('input');
+                                    let allEmpty = true;
+                                    inputs.forEach(inp => { if ((inp.value || '').trim() !== '') allEmpty = false; });
+                                    if (allEmpty) {
+                                        inputs.forEach(inp => {
+                                            const field = inp.dataset.field;
+                                            inp.placeholder = field === 'min' ? 'Min' : field === 'max' ? 'Max' : field === 'price' ? '£0.00' : '';
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }, 0);
+                });
+            }
+            
+            // Show raw JSON for a metafield box
+            function showRawJSON(contentId, jsonId) {
+                const content = document.getElementById(contentId);
+                const tableElement = content.querySelector('.metafield-table');
+                const addRowButton = content.querySelector('.add-row-button');
+                
+                // Hide entire table (including header) and add row button
+                if (tableElement) {
+                    tableElement.style.display = 'none';
+                }
+                if (addRowButton) {
+                    addRowButton.style.display = 'none';
+                }
+                
+                // Get the current synchronized data based on content ID
+                let metafieldData = [];
+                if (contentId === 'trade-content') {
+                    metafieldData = currentPriceData.trade || [];
+                } else if (contentId === 'end-customer-content') {
+                    metafieldData = currentPriceData.endCustomer || [];
+                }
+                
+                // Ensure metafieldData is an array
+                if (!Array.isArray(metafieldData)) {
+                    metafieldData = [];
+                }
+                
+                // Display raw JSON directly in the content div
+                content.innerHTML = `<div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 0.9rem; line-height: 1.5; color: #333; padding: 12px; background-color: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); white-space: normal; word-wrap: break-word; max-width: 100%; overflow-wrap: break-word;">${JSON.stringify(metafieldData)}</div>`;
+                
+                // Update button states
+                const buttons = content.parentNode.querySelectorAll('.metafield-button');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                const jsonButton = Array.from(buttons).find(btn => btn.textContent.trim() === 'JSON');
+                if (jsonButton) {
+                    jsonButton.classList.add('active');
+                }
+            }
+            
+            // Display price metafields
+            function displayPriceMetafields(product) {
+                const metafields = product.metafields || [];
+                
+                // Store the product data globally
+                currentProductData = product;
+                
+                // Debug: Log all metafields to see what we're getting
+                console.log('🔍 All metafields received:', metafields);
+                console.log('🔍 Looking for pricejsontr and pricejsoner metafields');
+                
+                // Update save button states
+                updateSaveButtonStates();
+                
+                // Find pricejsontr metafields (Trade) - check any namespace
+                const pricejsontrMetafields = metafields.filter(m => 
+                    m.key === 'pricejsontr'
+                );
+                
+                // Find pricejsoner metafields (End Customer) - check any namespace
+                const pricejsonerMetafields = metafields.filter(m => 
+                    m.key === 'pricejsoner'
+                );
+                
+                console.log('🔍 Found pricejsontr metafields:', pricejsontrMetafields);
+                console.log('🔍 Found pricejsoner metafields:', pricejsonerMetafields);
+                
+                // Display metafields
+                if (pricejsontrMetafields.length > 0) {
+                    try {
+                        const tradeData = JSON.parse(pricejsontrMetafields[0].value);
+                        currentPriceData.trade = tradeData;
+                        document.getElementById('trade-content').innerHTML = `
+                            <table class="metafield-table">
+                                <thead>
+                                    <tr>
+                                        <th>Min</th>
+                                        <th>Max</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trade-table-body">
+                                    <!-- Rows will be populated here -->
+                                </tbody>
+                            </table>
+                            <button class="add-row-button">Add New Row</button>
+                        `;
+                        showEditableTable('trade-content', 'trade-table-body');
+                    } catch (e) {
+                        document.getElementById('trade-content').innerHTML = '<p class="no-data">Invalid JSON data</p>';
+                    }
+                } else {
+                    document.getElementById('trade-content').innerHTML = `
+                        <table class="metafield-table">
+                            <thead>
+                                <tr>
+                                    <th>Min</th>
+                                    <th>Max</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trade-table-body">
+                                <!-- Rows will be populated here -->
+                            </tbody>
+                        </table>
+                        <button class="add-row-button">Add New Row</button>
+                    `;
+                    showEditableTable('trade-content', 'trade-table-body');
+                }
+
+                if (pricejsonerMetafields.length > 0) {
+                    try {
+                        const endCustomerData = JSON.parse(pricejsonerMetafields[0].value);
+                        currentPriceData.endCustomer = endCustomerData;
+                        document.getElementById('end-customer-content').innerHTML = `
+                            <table class="metafield-table">
+                                <thead>
+                                    <tr>
+                                        <th>Min</th>
+                                        <th>Max</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="end-customer-table-body">
+                                    <!-- Rows will be populated here -->
+                                </tbody>
+                            </table>
+                            <button class="add-row-button">Add New Row</button>
+                        `;
+                        showEditableTable('end-customer-content', 'end-customer-table-body');
+                    } catch (e) {
+                        document.getElementById('end-customer-content').innerHTML = '<p class="no-data">Invalid JSON data</p>';
+                    }
+                } else {
+                    document.getElementById('end-customer-content').innerHTML = `
+                        <table class="metafield-table">
+                            <thead>
+                                <tr>
+                                    <th>Min</th>
+                                    <th>Max</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="end-customer-table-body">
+                                <!-- Rows will be populated here -->
+                                </tbody>
+                            </table>
+                            <button class="add-row-button">Add New Row</button>
+                    `;
+                    showEditableTable('end-customer-content', 'end-customer-table-body');
+                }
+            }
+            
+            // Function to update save button states
+            function updateSaveButtonStates() {
+                const saveButtons = document.querySelectorAll('.save-button');
+                const saveAllButton = document.getElementById('save-all-button');
+                
+                saveButtons.forEach(button => {
+                    if (currentProductData && currentProductData.id) {
+                        button.disabled = false;
+                        button.style.opacity = '1';
+                    } else {
+                        button.disabled = true;
+                        button.style.opacity = '0.5';
+                    }
+                });
+                
+                // Update Save All button state
+                if (saveAllButton) {
+                    if (currentProductData && currentProductData.id) {
+                        saveAllButton.disabled = false;
+                        saveAllButton.style.opacity = '1';
+                    } else {
+                        saveAllButton.disabled = true;
+                        saveAllButton.style.opacity = '0.6';
+                    }
+                }
+            }
+
+            // Update save button states initially
+            updateSaveButtonStates();
+            // Apply initial lock state to right table on page load
+            updateEndCustomerEditability();
+
+            // Handle autocomplete input
+            productInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                
+                clearTimeout(autocompleteTimeout);
+                
+                if (query.length < 2) {
+                    hideAutocomplete();
+                    return;
+                }
+
+                autocompleteTimeout = setTimeout(() => {
+                    showAutocomplete(query);
+                }, 300);
+            });
+
+            function showAutocomplete(query) {
+                const matches = allProducts.filter(product => {
+                    const name = product.title.toLowerCase();
+                    const id = product.id.toString();
+                    const sku = (product.variants && product.variants[0] && product.variants[0].sku) || '';
+                    return name.includes(query) || id.includes(query) || sku.toLowerCase().includes(query);
+                }).slice(0, 8); // Show max 8 results
+
+                if (matches.length === 0) {
+                    hideAutocomplete();
+                    return;
+                }
+
+                autocompleteDropdown.innerHTML = '';
+                matches.forEach(product => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.innerHTML = `
+                        <div class="product-name">${product.title}</div>
+                        <div class="product-id">ID: ${product.id} | SKU: ${product.variants && product.variants[0] && product.variants[0].sku ? product.variants[0].sku : 'N/A'}</div>
+                    `;
+                    
+                    item.addEventListener('click', () => {
+                        productInput.value = product.title;
+                        hideAutocomplete();
+                        searchProduct(product.title);
+                    });
+                    
+                    autocompleteDropdown.appendChild(item);
+                });
+
+                autocompleteDropdown.style.display = 'block';
+            }
+
+            function hideAutocomplete() {
+                autocompleteDropdown.style.display = 'none';
+            }
+
+            // Hide autocomplete when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!productInput.contains(event.target) && !autocompleteDropdown.contains(event.target)) {
+                    hideAutocomplete();
+                }
+            });
+
+            // Allow Enter key to trigger search
+            productInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    hideAutocomplete();
+                    const query = this.value.trim();
+                    if (query) {
+                        searchProduct(query);
+                    }
+                }
+            });
+
+            // Hide autocomplete on input focus out
+            productInput.addEventListener('blur', function() {
+                setTimeout(hideAutocomplete, 200);
+            });
+
+            // Search for a specific product
+            async function searchProduct(query) {
+                try {
+                    console.log('Searching for product:', query);
+                    
+                    // Find the product from our autocomplete data
+                    const product = allProducts.find(p => 
+                        p.title.toLowerCase().includes(query.toLowerCase()) ||
+                        p.id.toString().includes(query) ||
+                        (p.variants && p.variants[0] && p.variants[0].sku && 
+                         p.variants[0].sku.toLowerCase().includes(query.toLowerCase()))
+                    );
+
+                    if (!product) {
+                        console.log(`Product not found: ${query}`);
+                        alert(`Product not found: ${query}`);
+                        return;
+                    }
+
+                    console.log('Found product:', product);
+                    console.log('Fetching details for product ID:', product.id);
+
+                    // Fetch detailed product information using the prices endpoint
+                    const response = await fetch(`/api/product/${product.id}/prices`);
+                    console.log('API response status:', response.status);
+                    
+                    if (response.ok) {
+                        const productData = await response.json();
+                        console.log('Product data received:', productData);
+                        displayPriceMetafields(productData);
+                    } else {
+                        const errorText = await response.text();
+                        console.log(`Error fetching product details: ${response.statusText}`);
+                        console.log('Error response:', errorText);
+                        alert(`Error loading product: ${response.statusText}`);
+                    }
+                } catch (error) {
+                    console.log(`Error searching for product: ${error.message}`);
+                    console.error('Full error:', error);
+                    alert(`Error: ${error.message}`);
+                }
+            }
+
+            // Function to fetch product data and display metafields
+            async function fetchProductData(productId) {
+                try {
+                    const response = await fetch(`/api/product/${productId}/prices`);
+                    const product = await response.json();
+                    displayPriceMetafields(product);
+                } catch (error) {
+                    console.log('Could not fetch product data:', error);
+                }
+            }
+
+            // Handle input keydown and input changes for editable tables
+            function handleInputKeydown(event) {
+                // Arrow key navigation across table cells (prevent default so arrows never change values)
+                if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                    // Always prevent default arrow behavior (e.g., number increment/decrement)
+                    event.preventDefault();
+                    const inputEl = event.target;
+                    const row = inputEl.closest('tr');
+                    const tbody = row ? row.parentNode : null;
+                    if (!row || !tbody) return;
+                    const inputsInRow = Array.from(row.querySelectorAll('input'));
+                    const colIndex = inputsInRow.indexOf(inputEl);
+                    const rows = Array.from(tbody.children);
+                    const rowIndex = rows.indexOf(row);
+
+                    let targetRowIndex = rowIndex;
+                    let targetColIndex = colIndex;
+                    let shouldMove = false;
+
+                    if (event.key === 'ArrowUp') {
+                        if (rowIndex > 0) { targetRowIndex = rowIndex - 1; shouldMove = true; }
+                    } else if (event.key === 'ArrowDown') {
+                        if (rowIndex < rows.length - 1) { targetRowIndex = rowIndex + 1; shouldMove = true; }
+                    } else if (event.key === 'ArrowLeft') {
+                        if (colIndex > 0) { targetColIndex = colIndex - 1; shouldMove = true; }
+                        else if (rowIndex > 0) { targetRowIndex = rowIndex - 1; targetColIndex = (rows[rowIndex - 1].querySelectorAll('input').length - 1) || 0; shouldMove = true; }
+                    } else if (event.key === 'ArrowRight') {
+                        const cols = inputsInRow.length;
+                        if (colIndex < cols - 1) { targetColIndex = colIndex + 1; shouldMove = true; }
+                        else if (rowIndex < rows.length - 1) { targetRowIndex = rowIndex + 1; targetColIndex = 0; shouldMove = true; }
+                    }
+
+                    if (shouldMove) {
+                        const targetRow = rows[targetRowIndex];
+                        if (targetRow) {
+                            const targetInputs = targetRow.querySelectorAll('input');
+                            const targetInput = targetInputs[targetColIndex] || targetInputs[targetInputs.length - 1];
+                            if (targetInput) {
+                                // event.preventDefault already called above
+                                // place caret at end reliably (even for type=number)
+                                const placeAtEnd = (el) => {
+                                    try {
+                                        const len = (el.value || '').length;
+                                        el.focus();
+                                        el.setSelectionRange(len, len);
+                                    } catch (e) {
+                                        const t = el.type;
+                                        try { el.type = 'text'; const len = (el.value || '').length; el.setSelectionRange(len, len); } catch (_) {}
+                                        finally { el.type = t; el.focus(); }
+                                    }
+                                };
+                                placeAtEnd(targetInput);
+                            }
+                        }
+                    }
+                } else if (event.key === 'Backspace') {
+                    const input = event.target;
+                    if (input.value === '') {
+                        // Check if all cells in the row are empty
+                        const row = input.closest('tr');
+                        const inputsInRow = row.querySelectorAll('input');
+                        const allEmpty = Array.from(inputsInRow).every(input => input.value === '');
+                        
+                        if (allEmpty) {
+                            // Prevent deletion of the first row
+                            const tbody = row.parentNode;
+                            const rowIndex = Array.from(tbody.children).indexOf(row);
+                            const leftContent = row.closest('.metafield-content');
+                            const isTradeLeft = leftContent && leftContent.id === 'trade-content';
+                            const rightTbody = document.querySelector('#end-customer-content .metafield-table tbody');
+                            if (rowIndex === 0) {
+                                event.preventDefault();
+                                return;
+                            }
+                            // Delete the left row
+                            row.remove();
+                            // Mirror deletion on right immediately when combined checkbox is on
+                            if (isTradeLeft && document.getElementById('qty-match-checkbox').checked && rightTbody) {
+                                const rightRow = rightTbody.children[rowIndex];
+                                if (rightRow) {
+                                    rightTbody.removeChild(rightRow);
+                                    updateRowIndices(rightTbody);
+                                }
+                                // Recompute synced data for consistency
+                                updateJSONFromTable('trade-content');
+                                updateJSONFromTable('end-customer-content');
+                            }
+                            event.preventDefault();
+                        }
+                    }
+                } else if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const currentRow = event.target.closest('tr');
+                    const tableBody = currentRow.parentNode;
+                    
+                    // Insert new row below current row
+                    insertRowBelow(currentRow, tableBody);
+                    // Format all price inputs in this table to 2dp when pressing Enter
+                    const table = tableBody.closest('.metafield-table');
+                    if (table) {
+                        table.querySelectorAll('input[data-field="price"]').forEach(inp => {
+                            let v = (inp.value || '').replace(/^£\s*/, '');
+                            if (v !== '' && !isNaN(parseFloat(v))) {
+                                inp.value = '£' + (parseFloat(v)).toFixed(2);
+                            }
+                        });
+                    }
+                }
+            }
+
+            function handleInputChange(event) {
+                const input = event.target;
+                const row = input.closest('tr');
+                const inputsInRow = row.querySelectorAll('input');
+                
+                if (input.dataset.field === 'price') {
+                    formatPriceInputElement(input);
+                }
+
+                // Update data-index for all inputs in the row
+                const rowIndex = Array.from(row.parentNode.children).indexOf(row);
+                inputsInRow.forEach((input, index) => {
+                    input.dataset.index = rowIndex;
+                });
+                
+                // Update JSON data from table
+                const metafieldContent = input.closest('.metafield-content');
+                if (metafieldContent) {
+                    updateJSONFromTable(metafieldContent.id);
+                }
+                // When leaving focus entirely, format all prices in this table to 2dp
+                setTimeout(() => {
+                    const active = document.activeElement;
+                    const table = row.closest('.metafield-table');
+                    if (table && !table.contains(active)) {
+                        table.querySelectorAll('input[data-field="price"]').forEach(inp => {
+                            let v = (inp.value || '').replace(/^£\s*/, '');
+                            if (v !== '' && !isNaN(parseFloat(v))) {
+                                inp.value = '£' + (parseFloat(v)).toFixed(2);
+                            }
+                        });
+                    }
+                }, 0);
+            }
+
+            // Format price inputs to always show a leading £ while typing
+            function formatPriceInputElement(input) {
+                if (!input) return;
+                let v = input.value || '';
+                if (v === '') return;
+                v = ('' + v).replace(/^£\s*/, '').replace(/[^0-9.]/g, '');
+                input.value = '£' + v;
+            }
+
+            function handlePriceFocus(event) {
+                const input = event.target;
+                let v = input.value || '';
+                if (v.trim() === '') {
+                    input.value = '£';
+                    requestAnimationFrame(() => {
+                        try { input.setSelectionRange(1, 1); } catch (e) {}
+                    });
+                } else if (!/^£/.test(v)) {
+                    input.value = '£' + v.replace(/[^0-9.]/g, '');
+                    requestAnimationFrame(() => {
+                        try { input.setSelectionRange(input.value.length, input.value.length); } catch (e) {}
+                    });
+                }
+            }
+
+            function handlePriceBlur(event) {
+                const input = event.target;
+                const v = input.value || '';
+                const digits = v.replace(/[^0-9]/g, '');
+                if (digits.length === 0) {
+                    input.value = '';
+                } else {
+                    formatPriceInputElement(input);
+                }
+            }
+
+            // Prevent caret from moving left of the £ prefix and prevent deleting it
+            function enforcePriceCaretBounds(input) {
+                if (!input || !/^£/.test(input.value || '')) return;
+                try {
+                    const start = input.selectionStart;
+                    const end = input.selectionEnd;
+                    if (typeof start === 'number' && start < 1) {
+                        input.setSelectionRange(1, Math.max(1, end));
+                    }
+                } catch (e) {}
+            }
+
+            function handlePriceKeydown(event) {
+                const input = event.target;
+                if (!(input && input.dataset && input.dataset.field === 'price')) return;
+                const val = input.value || '';
+                if (!/^£/.test(val)) return;
+                if (event.key === 'Backspace') {
+                    try {
+                        const start = input.selectionStart;
+                        const end = input.selectionEnd;
+                        if (typeof start === 'number' && typeof end === 'number' && start <= 1 && end <= 1) {
+                            event.preventDefault();
+                            input.setSelectionRange(1, 1);
+                        }
+                    } catch (e) {}
+                } else if (event.key === 'Home') {
+                    event.preventDefault();
+                    try { input.setSelectionRange(1, 1); } catch (e) {}
+                }
+            }
+
+            // Function to add a new row to an editable table
+            function addNewRow(tableBodyId) {
+                const tableBody = document.getElementById(tableBodyId);
+                if (tableBody) {
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td><input type="number" value="" data-index="${tableBody.children.length}" data-field="min" placeholder=""></td>
+                        <td><input type="number" value="" data-index="${tableBody.children.length}" data-field="max" placeholder=""></td>
+                        <td><div class="currency-input"><input type="text" inputmode="decimal" value="" data-index="${tableBody.children.length}" data-field="price" placeholder=""></div></td>
+                    `;
+                    tableBody.appendChild(newRow);
+                    // After adding, format all price inputs in this table to 2dp
+                    const table = tableBody.closest('.metafield-table');
+                    if (table) {
+                        table.querySelectorAll('input[data-field="price"]').forEach(inp => {
+                            let v = (inp.value || '').replace(/^£\s*/, '');
+                            if (v !== '' && !isNaN(parseFloat(v))) {
+                                inp.value = '£' + (parseFloat(v)).toFixed(2);
+                            }
+                        });
+                    }
+
+                    // Add event listeners to new inputs
+                    const inputs = newRow.querySelectorAll('input');
+                    inputs.forEach(input => {
+                        input.addEventListener('keydown', handleInputKeydown);
+                        input.addEventListener('input', handleInputChange);
+                        if (input.dataset.field === 'price') {
+                            input.addEventListener('focus', handlePriceFocus);
+                            input.addEventListener('blur', handlePriceBlur);
+                            input.addEventListener('keydown', handlePriceKeydown);
+                            input.addEventListener('keyup', () => enforcePriceCaretBounds(input));
+                            input.addEventListener('click', () => enforcePriceCaretBounds(input));
+                        }
+                    });
+                    
+                    // Update JSON data after adding new row
+                    const metafieldContent = tableBody.closest('.metafield-content');
+                    if (metafieldContent) {
+                        updateJSONFromTable(metafieldContent.id);
+                    }
+                }
+            }
+
+            // Function to insert a new row below a specific row
+            function insertRowBelow(currentRow, tableBody) {
+                const newRow = document.createElement('tr');
+                const currentIndex = Array.from(tableBody.children).indexOf(currentRow);
+                
+                // Set new row values to blank/empty
+                newRow.innerHTML = `
+                    <td><input type="number" value="" data-index="${currentIndex + 1}" data-field="min" placeholder=""></td>
+                    <td><input type="number" value="" data-index="${currentIndex + 1}" data-field="max" placeholder=""></td>
+                    <td><div class="currency-input"><input type="text" inputmode="decimal" value="" data-index="${currentIndex + 1}" data-field="price" placeholder=""></div></td>
+                `;
+                
+                // Insert the new row after the current row
+                if (currentRow.nextSibling) {
+                    tableBody.insertBefore(newRow, currentRow.nextSibling);
+                } else {
+                    tableBody.appendChild(newRow);
+                }
+                
+                // Add event listeners to new inputs
+                const inputs = newRow.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.addEventListener('keydown', handleInputKeydown);
+                    input.addEventListener('input', handleInputChange);
+                    if (input.dataset.field === 'price') {
+                        input.addEventListener('focus', handlePriceFocus);
+                        input.addEventListener('blur', handlePriceBlur);
+                        input.addEventListener('keydown', handlePriceKeydown);
+                        input.addEventListener('keyup', () => enforcePriceCaretBounds(input));
+                        input.addEventListener('click', () => enforcePriceCaretBounds(input));
+                    }
+                });
+                
+                // Update data indices for all rows after the new row
+                updateRowIndices(tableBody);
+                
+                // Update JSON data after adding new row
+                const metafieldContent = tableBody.closest('.metafield-content');
+                if (metafieldContent) {
+                    updateJSONFromTable(metafieldContent.id);
+                }
+                
+                // Focus on the first input of the new row
+                newRow.querySelector('input[data-field="min"]').focus();
+            }
+
+            // Function to update row indices after inserting/deleting rows
+            function updateRowIndices(tableBody) {
+                const rows = tableBody.querySelectorAll('tr');
+                rows.forEach((row, index) => {
+                    const inputs = row.querySelectorAll('input');
+                    inputs.forEach(input => {
+                        input.dataset.index = index;
+                    });
+                });
+            }
+
+            // Function to update JSON data from table inputs
+            function updateJSONFromTable(contentId) {
+                const content = document.getElementById(contentId);
+                const tableElement = content.querySelector('.metafield-table');
+                
+                if (!tableElement || tableElement.style.display === 'none') {
+                    return; // Table not visible
+                }
+                
+                const rows = tableElement.querySelectorAll('tbody tr');
+                const newData = [];
+                
+                rows.forEach(row => {
+                    const inputs = row.querySelectorAll('input');
+                    if (inputs.length === 3) {
+                        const min = parseFloat(inputs[0].value);
+                        const max = parseFloat(inputs[1].value);
+                        let priceStr = inputs[2].value;
+                        if (typeof priceStr === 'string') {
+                            priceStr = priceStr.trim().replace(/^£\s*/, '');
+                        }
+                        const price = parseFloat(priceStr);
+                        
+                        if (!isNaN(min) && !isNaN(max) && !isNaN(price)) {
+                            newData.push({ min, max, price });
+                        }
+                    }
+                });
+                
+                // Update the current data based on content ID
+                if (contentId === 'trade-content') {
+                    currentPriceData.trade = newData;
+                    // Update the metafield in currentProductData
+                    if (currentProductData?.metafields) {
+                        let metafield = currentProductData.metafields.find(m => m.key === 'pricejsontr');
+                        if (metafield) {
+                            metafield.value = newData;
+                        }
+                    }
+                    
+                    // If combined checkbox is enabled, sync the end customer table mirroring LEFT DOM row count
+                    if (document.getElementById('qty-match-checkbox').checked) {
+                        const tradeRows = Array.from(tableElement.querySelectorAll('tbody tr'));
+                        const rowsForSync = tradeRows.map((row, idx) => {
+                            const inputs = row.querySelectorAll('input');
+                            const minVal = parseFloat(inputs[0]?.value);
+                            const maxVal = parseFloat(inputs[1]?.value);
+                            let priceStr = inputs[2]?.value;
+                            if (typeof priceStr === 'string') priceStr = priceStr.trim().replace(/^£\s*/, '');
+                            const priceVal = parseFloat(priceStr);
+                            return {
+                                min: Number.isFinite(minVal) ? minVal : '',
+                                max: Number.isFinite(maxVal) ? maxVal : '',
+                                price: Number.isFinite(priceVal) ? priceVal : currentPriceData.trade?.[idx]?.price
+                            };
+                        });
+                        syncEndCustomerQuantityRanges(rowsForSync);
+                    }
+                    
+                    // With combined checkbox, also sync prices
+                    if (document.getElementById('qty-match-checkbox').checked) {
+                        syncPricesFromTrade();
+                    }
+                } else if (contentId === 'end-customer-content') {
+                    currentPriceData.endCustomer = newData;
+                    // Update the metafield in currentProductData
+                    if (currentProductData?.metafields) {
+                        let metafield = currentProductData.metafields.find(m => m.key === 'pricejsoner');
+                        if (metafield) {
+                            metafield.value = newData;
+                        }
+                    }
+                }
+            }
+
+            // Function to sync quantity ranges from trade to end customer
+            function syncQuantityRanges() {
+                const tradeData = currentPriceData.trade || [];
+                if (tradeData.length > 0) {
+                    syncEndCustomerQuantityRanges(tradeData);
+                }
+            }
+
+            // Function to sync end customer quantity ranges based on trade data
+            function syncEndCustomerQuantityRanges(tradeData) {
+                if (!Array.isArray(tradeData) || tradeData.length === 0) return;
+                
+                const endCustomerTable = document.querySelector('#end-customer-content .metafield-table tbody');
+                if (!endCustomerTable) return;
+                
+                // Get current end customer data to preserve prices
+                const currentEndCustomerData = currentPriceData.endCustomer || [];
+                
+                // Create a map of existing prices by row index (not by min-max key)
+                const existingPrices = [];
+                currentEndCustomerData.forEach(item => {
+                    existingPrices.push(item.price);
+                });
+                
+                // Clear and rebuild the end customer table with trade quantity ranges
+                endCustomerTable.innerHTML = '';
+                
+                tradeData.forEach((tradeItem, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // Calculate price based on price sync checkbox
+                    let priceText = '';
+                    if (document.getElementById('qty-match-checkbox').checked) {
+                        const raw = tradeData[index] ? tradeData[index].price : undefined;
+                        const parsed = parseFloat(raw);
+                        if (Number.isFinite(parsed)) {
+                            priceText = (parsed * 1.3).toFixed(2);
+                        } else {
+                            priceText = '';
+                        }
+                    } else {
+                        const preserved = existingPrices[index];
+                        priceText = Number.isFinite(preserved) ? Number(preserved).toFixed(2) : '';
+                    }
+                    
+                    row.innerHTML = `
+                        <td><input type="number" value="${tradeItem.min}" data-index="${index}" data-field="min"></td>
+                        <td><input type="number" value="${tradeItem.max}" data-index="${index}" data-field="max"></td>
+                        <td><div class="currency-input"><input type="text" inputmode="decimal" value="${priceText}" data-index="${index}" data-field="price" placeholder=""></div></td>
+                    `;
+                    endCustomerTable.appendChild(row);
+                    
+                    // Add event listeners to new inputs
+                    const inputs = row.querySelectorAll('input');
+                    inputs.forEach(input => {
+                        input.addEventListener('keydown', handleInputKeydown);
+                        input.addEventListener('input', handleInputChange);
+                    });
+                    const priceInput = row.querySelector('input[data-field="price"]');
+                    if (priceInput) {
+                        priceInput.addEventListener('focus', handlePriceFocus);
+                        priceInput.addEventListener('blur', handlePriceBlur);
+                        if ((priceInput.value || '').trim() !== '') {
+                            formatPriceInputElement(priceInput);
+                        }
+                    }
+                });
+                
+                // Update the current data
+                const newEndCustomerData = Array.from(endCustomerTable.querySelectorAll('tr')).map(row => {
+                    const inputs = row.querySelectorAll('input');
+                    return {
+                        min: parseFloat(inputs[0].value),
+                        max: parseFloat(inputs[1].value),
+                        price: parseFloat(inputs[2].value)
+                    };
+                });
+                
+                currentPriceData.endCustomer = newEndCustomerData;
+                
+                // Update the metafield in currentProductData
+                if (currentProductData?.metafields) {
+                    let metafield = currentProductData.metafields.find(m => m.key === 'pricejsoner');
+                    if (metafield) {
+                        metafield.value = newEndCustomerData;
+                    }
+                }
+            }
+
+            // Function to sync prices from trade to end customer (30% higher)
+            function syncPricesFromTrade() {
+                const tradeData = currentPriceData.trade || [];
+                const endCustomerTable = document.querySelector('#end-customer-content .metafield-table tbody');
+                
+                if (!Array.isArray(tradeData) || tradeData.length === 0 || !endCustomerTable) return;
+                
+                // Get all rows in the end customer table
+                const rows = endCustomerTable.querySelectorAll('tr');
+                
+                rows.forEach((row, index) => {
+                    const priceInput = row.querySelector('input[data-field="price"]');
+                    if (priceInput && tradeData[index]) {
+                        // Calculate 30% higher than trade price
+                        const newPrice = tradeData[index].price * 1.3;
+                        priceInput.value = newPrice.toFixed(2);
+                        
+                        // Trigger input change event to update the data
+                        priceInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

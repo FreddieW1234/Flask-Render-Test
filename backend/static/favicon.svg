@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="storeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main store building (matching fa-store icon exactly) -->
+  <rect x="4" y="16" width="24" height="12" fill="url(#storeGradient)" rx="1"/>
+  
+  <!-- Store roof (angled like fa-store) -->
+  <path d="M2 16L16 4L30 16L28 16L16 6L4 16L2 16Z" fill="url(#storeGradient)"/>
+  
+  <!-- Store door (centered) -->
+  <rect x="13" y="20" width="6" height="8" fill="white" opacity="0.9"/>
+  
+  <!-- Store windows (left and right) -->
+  <rect x="7" y="18" width="4" height="4" fill="white" opacity="0.8" rx="0.5"/>
+  <rect x="21" y="18" width="4" height="4" fill="white" opacity="0.8" rx="0.5"/>
+  
+  <!-- Store sign above door -->
+  <rect x="12" y="14" width="8" height="2" fill="white" opacity="0.9" rx="1"/>
+  
+  <!-- Store awning -->
+  <path d="M6 14L16 10L26 14L24 14L16 12L8 14L6 14Z" fill="white" opacity="0.7"/>
+</svg>

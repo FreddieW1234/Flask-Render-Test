@@ -1,0 +1,27 @@
+.env
+.env.*
+*.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+Thumbs.db
+*.sqlite3
+*.log
+
+# Virtual environments
+venv/
+backend/venv/
+
+# IDE and tooling
+.vscode/
+.idea/
+.pytest_cache/
+
+# Vercel build artifacts
+.vercel/
+
+# Local secrets
+admin api access token.txt
+

@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Templates Uploader - Shopify Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; padding: 10px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        /* Legacy classes kept for minimal changes */
+        .card { background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 20px; }
+        .title { font-size: 1.6rem; font-weight: 700; margin-bottom: 12px; }
+        .subtitle { color: #666; margin-bottom: 18px; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .input { width: 100%; padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: #667eea; color: #fff; }
+        .btn-primary:hover { background: #5a6fd8; transform: translateY(-1px); }
+        .btn:disabled { opacity: .6; cursor: not-allowed; }
+        .file-list { margin-top: 10px; font-size: 14px; color: #555; }
+        .status { margin-top: 10px; }
+        .danger { color: #c62828; }
+        .success { color: #2e7d32; }
+        .muted { color: #6b7280; }
+        .mf { background: white; border: 2px solid #e9ecef; border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+        .mf code { background: #f8f9fa; padding: 2px 6px; border-radius: 6px; }
+        /* New shared app UI styles */
+        .header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; padding: 18px 25px; margin-bottom: 15px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); display: flex; align-items: center; justify-content: space-between; }
+        .header-left { display: flex; align-items: center; }
+        .header-right { display: flex; align-items: center; gap: 20px; }
+        .dashboard-tab { display: flex; align-items: center; gap: 6px; padding: 10px 16px; background: rgba(102, 126, 234, 0.15); color: #667eea; text-decoration: none; border-radius: 10px; font-size: 0.9rem; font-weight: 600; transition: all 0.3s ease; border: 2px solid rgba(102, 126, 234, 0.3); }
+        .dashboard-tab:hover { background: #667eea; color: white; border-color: #667eea; transform: translateY(-2px); }
+        .app-tabs { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 8px; width: 100%; max-width: 600px; }
+        .app-tabs-row { display: contents; }
+        .app-tab { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(102, 126, 234, 0.1); color: #667eea; text-decoration: none; border-radius: 8px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease; border: 1px solid transparent; }
+        .app-tab:hover { background: rgba(102, 126, 234, 0.2); transform: translateY(-1px); }
+        .app-tab.active { background: #667eea; color: white; border-color: #667eea; }
+        .tool-section { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; padding: 25px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); margin-bottom: 15px; }
+        .tool-section h2 { font-size: 1.8rem; font-weight: 600; margin-bottom: 25px; color: #333; text-align: center; }
+        .search-container { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+        .autocomplete-container { position: relative; display: inline-block; }
+        .product-input { padding: 12px 16px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; width: 400px; transition: border-color 0.3s ease; }
+        .product-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .autocomplete-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e9ecef; border-top: none; border-radius: 0 0 8px 8px; max-height: 220px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); display: none; }
+        .autocomplete-item { padding: 10px 16px; cursor: pointer; border-bottom: 1px solid #f8f9fa; transition: background-color 0.2s ease; }
+        .autocomplete-item:hover { background-color: #f8f9fa; }
+        .autocomplete-item:last-child { border-bottom: none; }
+        /* Media Upload Styles (copied to match Product Creator) */
+        .media-upload-container { margin-top: 10px; }
+        .media-upload-area { border: 2px dashed #667eea; border-radius: 12px; padding: 40px 20px; text-align: center; background: rgba(102, 126, 234, 0.05); transition: all 0.3s ease; cursor: pointer; position: relative; }
+        .media-upload-area:hover { border-color: #5a6fd8; background: rgba(102, 126, 234, 0.1); transform: translateY(-2px); }
+        .media-upload-area.dragover { border-color: #4caf50; background: rgba(76, 175, 80, 0.1); }
+        .upload-icon { font-size: 48px; color: #667eea; margin-bottom: 16px; }
+        .upload-text p { margin: 8px 0; color: #666; }
+        .upload-text p:first-child { font-size: 16px; font-weight: 500; color: #333; }
+        .upload-limit { font-size: 14px; color: #888; }
+    </style>
+    <script>
+        async function searchProducts(term) {
+            const res = await fetch('/api/products');
+            const products = await res.json();
+            if (!term) return products;
+            term = term.toLowerCase();
+            return products.filter(p => {
+                const name = (p.title || '').toLowerCase();
+                const variants = Array.isArray(p.variants) ? p.variants : [];
+                const skuMatch = variants.some(v => (v.sku || '').toLowerCase().includes(term));
+                return name.includes(term) || skuMatch;
+            });
+        }
+
+        async function loadMetafield(productId) {
+            // Use the endpoint that returns ALL metafields for a product
+            const res = await fetch(`/api/product/${productId}/prices`);
+            const product = await res.json();
+            const mf = (product.metafields || []).find(m => m.namespace === 'custom' && m.key === 'artworktemplates');
+            return mf || null;
+        }
+
+        function bytesToSize(bytes) {
+            if (!bytes) return '0 B';
+            const sizes = ['B','KB','MB','GB'];
+            const i = Math.floor(Math.log(bytes)/Math.log(1024));
+            return (bytes/Math.pow(1024,i)).toFixed(1)+' '+sizes[i];
+        }
+
+        let selectedProduct = null;
+        let selectedFiles = [];
+        let stagedLocalFiles = [];
+        let stagedRemoteEntries = [];
+        let currentFileGlobalId = '';
+
+        function addLocalFiles(files) {
+            const incoming = Array.from(files || []);
+            stagedLocalFiles = stagedLocalFiles.concat(incoming);
+            renderCombinedList();
+        }
+
+        function removeStaged(name, type) {
+            try {
+                if (type === 'local') {
+                    const idx = stagedLocalFiles.findIndex(f => f && f.name === name);
+                    if (idx !== -1) {
+                        stagedLocalFiles.splice(idx, 1);
+                    }
+                } else if (type === 'remote') {
+                    const i2 = stagedRemoteEntries.findIndex(e => e && e.name === name);
+                    if (i2 !== -1) stagedRemoteEntries.splice(i2, 1);
+                }
+            } catch (e) {}
+            renderCombinedList();
+        }
+
+        function renderCombinedList() {
+            const zp = document.getElementById('zipPreview');
+            if (!zp) return;
+            const remote = (stagedRemoteEntries || []).map(it => ({...it, _type: 'remote'}));
+            const local = (stagedLocalFiles || []).map(file => ({
+                name: file.name,
+                size: file.size,
+                is_image: file.type && file.type.startsWith('image/'),
+                preview: URL.createObjectURL(file),
+                _type: 'local',
+                _file: file
+            }));
+            const items = remote.concat(local);
+            if (!items.length) {
+                zp.style.display = 'block';
+                zp.innerHTML = '<div class="muted">No templates found for this product yet</div>';
+                const uploadBtn = document.getElementById('uploadBtn');
+                if (uploadBtn) uploadBtn.disabled = !selectedProduct || items.length === 0;
+                return;
+            }
+            const viewUrl = (n, it) => it._type === 'remote'
+                ? `/api/templates-uploader/zip-file?file_global_id=${encodeURIComponent(currentFileGlobalId)}&name=${encodeURIComponent(n)}`
+                : it.preview;
+            zp.style.display = 'block';
+            zp.innerHTML = '<div style="font-weight:600;margin-bottom:8px;">Current contents</div>' + items.map(it => {
+                const name = it.name;
+                const size = (it.size||0);
+                const sz = bytesToSize(size);
+                const removeBtn = `<a href="#" onclick="removeStaged('${name.replace(/'/g, "\\'")}', '${it._type}')" title="Remove" style="margin-left:auto;margin-right:10px;color:#d32f2f;"><i class="fas fa-times"></i></a>`;
+                const eye = `<a href="${viewUrl(name, it)}" target="_blank" rel="noopener" title="Open in new tab" style="color:#667eea;"><i class="fas fa-eye"></i></a>`;
+                if (it.is_image && it.preview) {
+                    return `<div style=\"display:flex;align-items:center;gap:10px;margin:6px 0;\"><img src=\"${it.preview}\" alt=\"${name}\" style=\"width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid #eee;\"/><div style=\"flex:1;\"><div>${name}</div><div class=\"muted\">${sz}</div></div>${removeBtn}${eye}</div>`;
+                }
+                return `<div style=\"display:flex;align-items:center;gap:10px;margin:6px 0;\"><div style=\"width:48px;height:48px;border:1px dashed #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#999;\"><i class=\"fas fa-file\"></i></div><div style=\"flex:1;\"><div>${name}</div><div class=\"muted\">${sz}</div></div>${removeBtn}${eye}</div>`;
+            }).join('');
+            const uploadBtn = document.getElementById('uploadBtn');
+            if (uploadBtn) uploadBtn.disabled = !selectedProduct || items.length === 0;
+        }
+
+        async function renderZipContentsByProduct(productId) {
+            const zp = document.getElementById('zipPreview');
+            const current = document.getElementById('currentMf');
+            try {
+                const mf = await loadMetafield(productId);
+                if (mf && mf.value) {
+                    // Hide metafield text panel entirely
+                    if (current) current.style.display = 'none';
+                    const pr = await fetch('/api/templates-uploader/zip-contents', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ file_global_id: mf.value })
+                    });
+                    const prData = await pr.json();
+                    if (prData.success) {
+                        const items = prData.entries || [];
+                        currentFileGlobalId = mf.value;
+                        stagedRemoteEntries = items.map(it => ({ name: it.name, size: it.size, is_image: it.is_image }));
+                        renderCombinedList();
+                    } else {
+                        zp.style.display = 'block';
+                        zp.innerHTML = `<div class=\"danger\">${prData.error || 'Could not preview ZIP'}</div>`;
+                    }
+                } else {
+                    // No metafield yet
+                    if (current) current.style.display = 'none';
+                    stagedRemoteEntries = [];
+                    renderCombinedList();
+                }
+            } catch (e) {
+                if (current) current.style.display = 'none';
+                zp.style.display = 'block';
+                zp.innerHTML = `<div class=\"danger\">${e}</div>`;
+            }
+        }
+
+        function sanitizeForFilename(value) {
+            const s = (value || '').toString();
+            return s
+                .replace(/[<>:"/\\|?*]/g, '')
+                .replace(/\s+/g, '_')
+                .replace(/_+/g, '_')
+                .replace(/^_+|_+$/g, '')
+                .slice(0, 120);
+        }
+
+        async function loadVersions(baseName) {
+            try {
+                const res = await fetch(`/api/templates-uploader/versions?base=${encodeURIComponent(baseName)}`);
+                const data = await res.json();
+                const panel = document.getElementById('versionsPanel');
+                if (!panel) return { next: 1 };
+                if (data.success) {
+                    const versions = data.versions || [];
+                    panel.style.display = 'block';
+                    // Determine current in-use global id
+                    let currentGlobalId = null;
+                    try {
+                        const mf = await loadMetafield(selectedProduct?.id);
+                        currentGlobalId = mf ? (mf.value || null) : null;
+                    } catch (e) { currentGlobalId = null; }
+
+                    panel.innerHTML = '<div style="font-weight:600;margin-bottom:8px;">All Versions</div>' + (
+                        versions.length ? versions.map(v => {
+                            const isCurrent = currentGlobalId && v.global_id && String(v.global_id) === String(currentGlobalId);
+                            const badge = isCurrent ? '<span style="margin-left:8px;padding:2px 6px;border-radius:6px;background:#e6f4ea;color:#1f7a1f;font-size:12px;">In use</span>' : '';
+                            const saveBtn = isCurrent ? '' : `<a href=\"#\" title=\"Save to product\" onclick=\"useVersion('${v.global_id}')\" style=\"color:#28a745;margin-left:10px;\"><i class=\"fas fa-save\"></i></a>`;
+                            const download = `<a href=\"${v.url || '#'}\" download title=\"Download\" style=\"color:#667eea;margin-left:auto;\"><i class=\"fas fa-download\"></i></a>`;
+                            const cid = `ver_contents_${v.version}`;
+                            const toggle = `<button type=\"button\" title=\"Toggle contents\" onclick=\"toggleVersionContents('${cid}','${v.global_id}', this)\" style=\"background:none;border:none;cursor:pointer;color:#555;\"><i class=\"fas fa-chevron-right\"></i></button>`;
+                            return `<div style=\"margin:4px 0;\">\n                                <div style=\"display:flex;align-items:center;gap:10px;\">\n                                    ${toggle}\n                                    <div class=\"muted\">v${v.version}</div>\n                                    <div style=\"flex:1;\">${v.name}${badge}</div>\n                                    ${saveBtn}${download}\n                                </div>\n                                <div id=\"${cid}\" class=\"mf\" style=\"margin-top:6px; display:none;\"></div>\n                            </div>`;
+                        }).join('') : '<div class=\"muted\">No previous versions</div>'
+                    );
+                    return { next: data.next_version || 1 };
+                } else {
+                    panel.style.display = 'block';
+                    panel.innerHTML = `<div class=\"danger\">${data.error || 'Could not load versions'}</div>`;
+                    return { next: 1 };
+                }
+            } catch (e) {
+                const panel = document.getElementById('versionsPanel');
+                if (panel) {
+                    panel.style.display = 'block';
+                    panel.innerHTML = `<div class=\"danger\">${e}</div>`;
+                }
+                return { next: 1 };
+            }
+        }
+
+        async function useVersion(globalId) {
+            try {
+                if (!selectedProduct) return;
+                const res = await fetch('/api/templates-uploader/use-version', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: selectedProduct.id, file_global_id: globalId })
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    // Refresh current metafield and contents
+                    const mf = await loadMetafield(selectedProduct.id);
+                    if (mf) {
+                        currentFileGlobalId = mf.value;
+                        const pr = await fetch('/api/templates-uploader/zip-contents', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file_global_id: mf.value })});
+                        const prData = await pr.json();
+                        if (prData.success) {
+                            const items = prData.entries || [];
+                            stagedLocalFiles = [];
+                            stagedRemoteEntries = items.map(it => ({ name: it.name, size: it.size, is_image: it.is_image }));
+                            renderCombinedList();
+                        }
+                        // Refresh versions list highlighting
+                        const sku = sanitizeForFilename(getPrimarySku(selectedProduct));
+                        const title = sanitizeForFilename(selectedProduct.title || 'product');
+                        const baseName = `${sku}_${title}_artwork_templates`;
+                        await loadVersions(baseName);
+                    }
+                }
+            } catch (e) {
+                // Silent fail in UI
+            }
+        }
+
+        async function toggleVersionContents(containerId, globalId, el) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const icon = el && el.querySelector ? el.querySelector('i') : null;
+            const isVisible = container.style.display !== 'none';
+            // Toggle closed
+            if (isVisible && container.getAttribute('data-loaded') === 'true') {
+                container.style.display = 'none';
+                if (icon) { icon.classList.remove('fa-chevron-down'); icon.classList.add('fa-chevron-right'); }
+                return;
+            }
+            // Toggle open; if already loaded just show
+            if (container.getAttribute('data-loaded') === 'true') {
+                container.style.display = 'block';
+                if (icon) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-down'); }
+                return;
+            }
+            // Load contents
+            container.style.display = 'block';
+            if (icon) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-down'); }
+            container.innerHTML = '<div class="muted">Loading…</div>';
+            try {
+                const resp = await fetch('/api/templates-uploader/zip-contents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ file_global_id: globalId })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    const entries = data.entries || [];
+                    if (!entries.length) {
+                        container.innerHTML = '<div class="muted">ZIP is empty</div>';
+                    } else {
+                        container.innerHTML = entries.map(it => {
+                            const name = it.name;
+                            const size = (it.size||0);
+                            const sz = bytesToSize(size);
+                            const viewUrl = `/api/templates-uploader/zip-file?file_global_id=${encodeURIComponent(globalId)}&name=${encodeURIComponent(name)}`;
+                            const eye = `<a href=\"${viewUrl}\" target=\"_blank\" rel=\"noopener\" title=\"Open in new tab\" style=\"color:#667eea;\"><i class=\"fas fa-eye\"></i></a>`;
+                            if (it.is_image && it.preview) {
+                                return `<div style=\"display:flex;align-items:center;gap:10px;margin:4px 0;\"><img src=\"${it.preview}\" alt=\"${name}\" style=\"width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #eee;\"/><div style=\"flex:1;\"><div>${name}</div><div class=\"muted\">${sz}</div></div>${eye}</div>`;
+                            }
+                            return `<div style=\"display:flex;align-items:center;gap:10px;margin:4px 0;\"><div style=\"width:40px;height:40px;border:1px dashed #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#999;\"><i class=\"fas fa-file\"></i></div><div style=\"flex:1;\"><div>${name}</div><div class=\"muted\">${sz}</div></div>${eye}</div>`;
+                        }).join('');
+                    }
+                    container.setAttribute('data-loaded', 'true');
+                } else {
+                    container.innerHTML = `<div class=\"danger\">${data.error || 'Could not load contents'}</div>`;
+                }
+            } catch (e) {
+                container.innerHTML = `<div class=\"danger\">${e}</div>`;
+            }
+        }
+
+        function getPrimarySku(product) {
+            const variants = Array.isArray(product?.variants) ? product.variants : [];
+            const v = variants.find(x => x && x.sku && x.sku.trim());
+            return v ? v.sku.trim() : 'NOSKU';
+        }
+
+        async function init() {
+            const search = document.getElementById('productSearch');
+            const dropdown = document.getElementById('autocomplete');
+            const current = document.getElementById('currentMf');
+            const fileInput = document.getElementById('files');
+            const uploadArea = document.getElementById('mediaUploadArea');
+            const uploadBtn = document.getElementById('uploadBtn');
+
+            async function doSearch() {
+                const term = search.value.trim();
+                if (term.length < 2) {
+                    dropdown.style.display = 'none';
+                    dropdown.innerHTML = '';
+                    return;
+                }
+                const items = await searchProducts(term);
+                dropdown.innerHTML = '';
+                if (!items.length) { dropdown.style.display = 'none'; return; }
+                dropdown.style.display = 'block';
+                items.slice(0, 50).forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    const sku = (Array.isArray(p.variants) && p.variants[0] && p.variants[0].sku) ? p.variants[0].sku : '';
+                    item.innerHTML = `<div class=\"product-name\">${p.title}</div><div class=\"product-id\">${sku}</div>`;
+                    item.onclick = async () => {
+                        selectedProduct = p;
+                        search.value = p.title;
+                        dropdown.style.display = 'none';
+                        const panel = document.getElementById('contentPanel');
+                        if (panel) panel.style.display = 'block';
+                        current.innerHTML = '<span class=\"muted\">Loading templates…</span>';
+                        try {
+                            await renderZipContentsByProduct(p.id);
+                            const skuB = sanitizeForFilename(getPrimarySku(p));
+                            const titleB = sanitizeForFilename(p.title || 'product');
+                            const baseB = `${skuB}_${titleB}_artwork_templates`;
+                            await loadVersions(baseB);
+                        } catch (e) {
+                            current.innerHTML = `<span class=\"danger\">Failed to load templates: ${e}</span>`;
+                        }
+                        const total = (stagedLocalFiles.length + stagedRemoteEntries.length);
+                        uploadBtn.disabled = !selectedProduct || total === 0;
+                    };
+                    dropdown.appendChild(item);
+                });
+            }
+
+            search.addEventListener('input', () => {
+                doSearch();
+            });
+            // Do not fetch on focus; wait until user types at least 2 chars
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.autocomplete-container')) {
+                    dropdown.style.display = 'none';
+                }
+            });
+            
+            // No initial search, but if a product is preselected later we will load versions on selection
+
+            fileInput.addEventListener('change', () => {
+                selectedFiles = Array.from(fileInput.files || []);
+                addLocalFiles(selectedFiles);
+                uploadBtn.disabled = !selectedProduct || (stagedLocalFiles.length + stagedRemoteEntries.length) === 0;
+            });
+
+            // Upload area interactions
+            if (uploadArea) {
+                uploadArea.addEventListener('click', () => fileInput && fileInput.click());
+                uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+                uploadArea.addEventListener('dragenter', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+                uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const files = Array.from(e.dataTransfer.files || []);
+                    if (files.length) {
+                        selectedFiles = files;
+                        addLocalFiles(files);
+                        uploadBtn.disabled = !selectedProduct || (stagedLocalFiles.length + stagedRemoteEntries.length) === 0;
+                    }
+                });
+            }
+
+            uploadBtn.onclick = async () => {
+                if (!selectedProduct || (stagedLocalFiles.length + stagedRemoteEntries.length) === 0) return;
+                uploadBtn.disabled = true;
+                const status = document.getElementById('status');
+                status.textContent = 'Zipping and uploading…';
+
+                const form = new FormData();
+                form.append('product_id', selectedProduct.id);
+                const sku = sanitizeForFilename(getPrimarySku(selectedProduct));
+                const title = sanitizeForFilename(selectedProduct.title || 'product');
+                const zipBase = `${sku}_${title}_artwork_templates`;
+                form.append('zip_name', zipBase);
+                // Query previous versions to compute explicit next version
+                let explicitVersion = null;
+                try {
+                    const verRes = await fetch(`/api/templates-uploader/versions?base=${encodeURIComponent(zipBase)}`);
+                    const verData = await verRes.json();
+                    if (verData && verData.success && verData.next_version) {
+                        explicitVersion = verData.next_version;
+                    }
+                } catch (e) { /* ignore */ }
+                stagedLocalFiles.forEach((f, i) => form.append('files', f, f.name));
+                for (const entry of stagedRemoteEntries) {
+                    try {
+                        const url = `/api/templates-uploader/zip-file?file_global_id=${encodeURIComponent(currentFileGlobalId)}&name=${encodeURIComponent(entry.name)}`;
+                        const resp = await fetch(url);
+                        if (resp.ok) {
+                            const blob = await resp.blob();
+                            const file = new File([blob], entry.name, { type: blob.type || 'application/octet-stream' });
+                            form.append('files', file, entry.name);
+                        }
+                    } catch (e) { /* ignore */ }
+                }
+
+                try {
+                    if (explicitVersion) form.append('explicit_version', String(explicitVersion));
+                    const res = await fetch('/api/templates-uploader/upload-zip', { method: 'POST', body: form });
+                    const data = await res.json();
+                    if (data.success) {
+                        status.innerHTML = `<span class="success">Saved ZIP folder to product</span>`;
+                        const mf = await loadMetafield(selectedProduct.id);
+                        if (mf) {
+                            current.innerHTML = `<div class=\"mf\">Found metafield <code>${mf.namespace}.${mf.key}</code><br/>Type: ${mf.type || 'file_reference'}<br/>Value: ${mf.value || ''}</div>`;
+                            // Fetch and display ZIP contents
+                            try {
+                                const pr = await fetch('/api/templates-uploader/zip-contents', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file_global_id: mf.value })});
+                                const prData = await pr.json();
+                                const zp = document.getElementById('zipPreview');
+                                if (zp) {
+                                    if (prData.success) {
+                                        const items = prData.entries || [];
+                                        // Rebuild staged lists and render so delete buttons persist
+                                        currentFileGlobalId = mf.value;
+                                        stagedLocalFiles = [];
+                                        stagedRemoteEntries = items.map(it => ({ name: it.name, size: it.size, is_image: it.is_image }));
+                                        renderCombinedList();
+                                    } else {
+                                        zp.style.display = 'block';
+                                        zp.innerHTML = `<div class=\"danger\">${prData.error || 'Could not preview ZIP'}</div>`;
+                                    }
+                                }
+                            } catch (e) {
+                                const zp = document.getElementById('zipPreview');
+                                if (zp) {
+                                    zp.style.display = 'block';
+                                    zp.innerHTML = `<div class=\"danger\">${e}</div>`;
+                                }
+                            }
+                            // Load and render versions under the save button
+                            const { next } = await loadVersions(zipBase);
+                            // Optionally, we could show next version somewhere or rely on backend versioning
+                        }
+                    } else {
+                        status.innerHTML = `<span class="danger">${data.error || 'Upload failed'}</span>`;
+                    }
+                } catch (e) {
+                    status.innerHTML = `<span class="danger">${e}</span>`;
+                } finally {
+                    uploadBtn.disabled = false;
+                }
+            };
+        }
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>
+                    <i class="fas fa-file-archive" style="color: #f4c542;"></i>
+                    Templates Uploader
+                </h1>
+            </div>
+            <div class="header-right">
+                <div class="app-tabs">
+                    <a href="/app/Artwork_Updater" class="app-tab">
+                        <i class="fas fa-palette"></i>
+                        <span>Artwork Updater</span>
+                    </a>
+                    <a href="/app/Field_Finder" class="app-tab">
+                        <i class="fas fa-search"></i>
+                        <span>Field Finder</span>
+                    </a>
+                    <a href="/app/price_bandit" class="app-tab">
+                        <i class="fas fa-robot"></i>
+                        <span>Price Bandit</span>
+                    </a>
+                    <a href="/app/Price_Manager" class="app-tab">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Price Manager</span>
+                    </a>
+                    <a href="/app/Product_Creator" class="app-tab">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Product Editor/Creator</span>
+                    </a>
+                    <a href="/app/Templates_Uploader" class="app-tab active">
+                        <i class="fas fa-file-archive"></i>
+                        <span>Templates Uploader</span>
+                    </a>
+                </div>
+                <a href="/" class="dashboard-tab">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="tool-section">
+            <h2>Templates Uploader</h2>
+            <div class="search-container">
+                <div class="autocomplete-container" style="width: 400px;">
+                    <input id="productSearch" class="product-input" placeholder="Enter product name or SKU" style="width: 400px;" />
+                    <div id="autocomplete" class="autocomplete-dropdown"></div>
+                </div>
+            </div>
+            <div id="contentPanel" style="display: none;">
+                <div id="currentMf" class="mf muted">Select a product to load metafield…</div>
+                <div style="margin-top:16px;">
+                    <div class="media-upload-container">
+                        <div class="media-upload-area" id="mediaUploadArea">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div class="upload-text">
+                                <p>Drag & drop files here or click to browse</p>
+                                <p class="upload-limit">• Multiple files supported •</p>
+                            </div>
+                            <input type="file" id="files" multiple style="display: none;">
+                        </div>
+                    </div>
+                    <div id="zipPreview" class="mf" style="margin-top:12px; display:none;"></div>
+                    <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
+                        <button id="uploadBtn" class="btn btn-primary" disabled>
+                            <i class="fas fa-upload"></i> Save to product
+                        </button>
+                        <div id="status" class="status muted"></div>
+                    </div>
+                    <div id="versionsPanel" class="mf" style="margin-top:12px; display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
